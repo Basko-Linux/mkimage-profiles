@@ -32,19 +32,18 @@ distro/alt-server:: distro/.base mixin/alt-server use/vmguest/base \
 	@$(call add,MAIN_GROUPS,$(server_groups_desktop))
 	@$(call add,MAIN_LISTS,centaurus/disk-dvd)
 	@$(call add,MAIN_LISTS,centaurus/disk-server-light)
+	@$(call add,THE_LISTS,monitoring/zabbix-agent)
+	@$(call add,THE_LISTS,cert-ru)
 ifneq (,$(filter-out e2k%,$(ARCH)))
 	@$(call add,INSTALL2_PACKAGES,installer-feature-desktop-suspend-stage2)
-endif
-ifeq (,$(filter-out i586 x86_64,$(ARCH)))
-	@$(call add,INSTALL2_PACKAGES,installer-feature-setup-plymouth)
 endif
 	@$(call add,INSTALL2_PACKAGES,strace)
 	@$(call add,INSTALL2_PACKAGES,fdisk)
 	@$(call add,INSTALL2_BRANDING,notes)
-	@$(call add,BASE_KMODULES,kvm virtualbox)
+	@$(call add,BASE_KMODULES,virtualbox)
 	@$(call add,CLEANUP_BASE_PACKAGES,acpid-events-power)
 	@$(call add,RESCUE_BOOTARGS,nomodeset vga=0)
-	@$(call add,EFI_BOOTARGS,lang=ru_RU)
+	@$(call add,STAGE2_BOOTARGS,lang=ru_RU)
 ifeq (,$(filter-out e2k,$(ARCH)))
 	@$(call set,META_APP_ID,ALT Server for Elbrus-4.4)
 endif
@@ -63,9 +62,7 @@ ifeq (,$(filter-out x86_64 aarch64,$(ARCH)))
 distro/alt-server:: +efi; @:
 endif
 
-ifeq (,$(filter-out ppc64le aarch64 e2k%,$(ARCH)))
 distro/alt-server:: use/install2/vnc/listen; @:
-endif
 
 ifeq (,$(filter-out e2k%,$(ARCH)))
 distro/alt-server:: +power +net-eth; @:

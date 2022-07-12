@@ -1,5 +1,5 @@
 Name: mkimage-profiles
-Version: 1.4.28
+Version: 1.4.31
 Release: alt1
 
 Summary: ALT based distribution metaprofile
@@ -128,6 +128,44 @@ mv %buildroot%mpdir/doc/mkimage-profiles.7 %buildroot%_man7dir/
 %endif
 
 %changelog
+* Mon Jul 11 2022 Anton Midyukov <antohami@altlinux.org> 1.4.31-alt1
+- arm-rpi4: add disabled option 'max_framebuffers=2' to config.txt
+- init: add startup to use/init
+- grub: add lowmem for nfs, samba methods to 88netinstall.cfg
+- kernel: add the same modules to initrd for riscv64 as for aarch64
+- regular-builder: add qemu support for non-ix86 platforms
+- dev: add systemd-settings-disable-kill-user-processes to
+  builder/live/systemd
+- stage2: add copy devicetree in 95-copy-kernel, if $GLOBAL_COPY_DTB
+  is set
+- efi: add use/efi/dtb for copy devicetree for default kernel to ESP
+  partition
+- efi: not require EFI_FB kernel config support
+- office: fix for riscv64, add abiword, gnumeric
+- browser: made chromium available for x86_64, aarch64 only
+- slinux 10.1 (thanks sem@)
+- slinux: builded iso on riscv64
+- slinux: enhancement for e2k (thanks mike@)
+- fix lists for wine >= 7.6
+- education: switch to use/browser/chromium
+- alt-server: add latests commits (thanks jqt4@)
+- alt-workstation: add latests commits (thanks sem@)
+
+* Fri Jun 03 2022 Anton Midyukov <antohami@altlinux.org> 1.4.30-alt1
+- create initrd.img with propagator instead full.cz
+- base+network, base+nm: add missing iputils
+- uboot: use relative pathes in extlinux.conf
+- replace 'egrep' to 'grep -E', replace 'fgrep' to 'grep -F'
+- install2: drop STAGE1_KMODULES virtualbox-additions, vmguest
+- slinux, workstation: add latest commits from sem@
+- education: add latest commits from cas@
+- alt-server: add latest commits from jqt4@
+- fix build slinux, workstation, education, alt-server on e2k
+
+* Mon Apr 18 2022 Anton Midyukov <antohami@altlinux.org> 1.4.29-alt1
+- stage2: fix 50-stage2-fs
+- desktop+mate: replace package list to metapackages
+
 * Mon Apr 11 2022 Anton Midyukov <antohami@altlinux.org> 1.4.28-alt1
 - lib/profile.mk: install branding-$$(BRANDING)-release always after basesystem
 - stage2: use propagator for c% BRANCH also

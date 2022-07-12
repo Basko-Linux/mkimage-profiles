@@ -74,9 +74,12 @@ distro/.server-v-base: distro/.base distro/.installer \
 	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
 	use/stage2/rtc use/stage2/scsi use/stage2/usb \
 	use/stage2/kms \
-	use/server/virt use/docs/license
+	use/server/virt use/docs/license use/docs/manual
 	@$(call add,BASE_LISTS,server-base openssh)
 	@$(call add,EFI_BOOTARGS,lang=ru_RU)
+ifeq (,$(filter-out i586 x86_64,$(ARCH)))
+	@$(call set,BOOTLOADER,grubpcboot)
+endif
 	@$(call set,BRANDING,alt-server-v)
 	@$(call set,INSTALLER,alt-server-v)
 	@$(call add,INSTALL2_PACKAGES,alterator-notes)
@@ -86,8 +89,8 @@ distro/.server-v-base: distro/.base distro/.installer \
 	@$(call add,INSTALL2_PACKAGES,fonts-ttf-google-croscore-arimo)
 	@$(call add,INSTALL2_PACKAGES,ntfs-3g)
 	@$(call add,INSTALL2_BRANDING,bootloader bootsplash notes slideshow)
-	@$(call add,THE_BRANDING,alterator graphics)
-	@$(call add,THE_BRANDING,indexhtml slideshow)
+	@$(call add,THE_BRANDING,alterator)
+	@$(call add,THE_BRANDING,indexhtml)
 	@$(call add,THE_PACKAGES,alterator-fbi alterator-notes)
 	@$(call add,THE_LISTS,$(call tags,basesystem alterator))
 	@$(call add,THE_LISTS,$(call tags,server alterator))
@@ -98,13 +101,14 @@ distro/.server-v-base: distro/.base distro/.installer \
 distro/server-v: distro/.server-v-base +installer \
 	use/ntp/chrony \
 	use/install2/net use/install2/autoinstall \
-	use/apt-conf/branch use/install2/repo
+	use/apt-conf/branch use/install2/repo \
+	use/vmguest
 	@$(call add,RESCUE_BOOTARGS,nomodeset vga=0)
-	@$(call set,IMAGE_FLAVOUR,$(subst alt-10-,,$(IMAGE_NAME)))
-	@$(call set,META_VOL_ID,ALT Server-V 10.0.0 $(ARCH))
+	@$(call set,IMAGE_FLAVOUR,$(subst alt-10.1-,,$(IMAGE_NAME)))
+	@$(call set,META_VOL_ID,ALT Server-V 10.1.0 $(ARCH))
 	@$(call set,META_PUBLISHER,BaseALT Ltd)
 	@$(call set,META_VOL_SET,ALT)
-	@$(call set,META_APP_ID,ALT Server-V 10.0.0 $(ARCH) $(shell date +%F))
+	@$(call set,META_APP_ID,ALT Server-V 10.1.0 $(ARCH) $(shell date +%F))
 	@$(call set,DOCS,alt-server-v)
 	@$(call add,BASE_LISTS,virt/base.pkgs)
 	@$(call add,MAIN_LISTS,virt/extra.pkgs)

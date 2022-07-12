@@ -110,3 +110,7 @@ xz
 expect
 
 system-report
+
+eepm
+
+glibc-timezones

@@ -56,6 +56,7 @@ mixin/regular-desktop: +alsa +nm-native \
 	use/fonts/otf/adobe use/fonts/otf/mozilla use/branding/notes
 	@$(call add,THE_PACKAGES,pam-limits-desktop beesu polkit dvd+rw-tools)
 	@$(call add,THE_PACKAGES,polkit-rule-admin-root)
+	@$(call add,THE_PACKAGES,polkit-rule-udisks2-mount)
 	@$(call add,THE_BRANDING,alterator graphics indexhtml)
 ifneq (,$(filter-out e2k%,$(ARCH)))
 	@$(call add,THE_BRANDING,notes)
@@ -95,10 +96,7 @@ mixin/regular-deepin: use/x11/deepin use/browser/chromium +nm; @:
 mixin/regular-gnome3: use/x11/gnome3 use/fonts/ttf/redhat +nm-gtk
 	@$(call add,THE_PACKAGES,gnome3-regular xcalib templates)
 	@$(call add,THE_PACKAGES,chrome-gnome-shell)
-	@$(call add,THE_PACKAGES,gnome-software-disable-updates)
-ifneq (,$(filter-out e2k%,$(ARCH)))
-	@$(call add,THE_PACKAGES,flatpak-repo-flathub)
-endif
+	@$(call add,THE_PACKAGES,qt5-wayland)
 
 mixin/regular-kde5: use/x11/kde5 use/browser/falkon \
 	use/x11/kde5-display-manager-lightdm \

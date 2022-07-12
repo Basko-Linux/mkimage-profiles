@@ -15,7 +15,7 @@ use/efi:
 	@$(call add,COMMON_LISTS,$(EFI_LISTS))
 ifeq (distro,$(IMAGE_CLASS))
 	@$(call add,INSTALL2_PACKAGES,dosfstools fatresize)
-	@$(call add,STAGE1_KCONFIG,EFI EFI_PARTITION FB_EFI EFIVAR_FS)
+	@$(call add,STAGE1_KCONFIG,EFI EFI_PARTITION EFIVAR_FS)
 	@$(call add,EFI_BOOTARGS,$$(STAGE2_BOOTARGS))
 ifeq (x86_64,$(ARCH))
 	@$(call add,RESCUE_PACKAGES,refind $$(EFI_SHELL) $$(EFI_BOOTLOADER))
@@ -65,4 +65,13 @@ else
 use/efi use/efi/signed use/efi/debug use/efi/grub use/efi/lilo \
   use/efi/refind use/efi/shell use/efi/memtest86: use/isohybrid; @:
 
+endif
+
+# copy devicetree for default kernel on ESP partition
+use/efi/dtb: use/efi; @:
+ifeq (distro,$(IMAGE_CLASS))
+ifneq (,$(filter-out $(aarch64 riscv64),$(ARCH)))
+	@$(call set,GLOBAL_COPY_DTB,1)
+	@$(call add,EFI_FILES_REPLACE,dtb)
+endif
 endif

@@ -12,7 +12,8 @@ mixin/education: \
 	use/x11/lightdm/gtk +pulse \
 	+nm use/x11/gtk/nm \
 	use/xdg-user-dirs/deep \
-	use/office/LibreOffice/full
+	use/office/LibreOffice/full \
+	use/browser/chromium
 	@$(call set,BRANDING,alt-education)
 	@$(call add,THE_BRANDING,indexhtml)
 	@$(call add,THE_BRANDING,menu xfce-settings system-settings)
@@ -39,9 +40,6 @@ mixin/education-live: \
 	use/live/repo use/live/x11 use/live/rw \
 	use/cleanup/live-no-cleanupdb
 	@$(call add,LIVE_PACKAGES,livecd-timezone)
-ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
-	@$(call add,LIVE_PACKAGES,chromium)
-endif
 	@$(call add,LIVE_PACKAGES,mc-full)
 	@$(call add,LIVE_PACKAGES,remmina remmina-plugins)
 	@$(call add,LIVE_PACKAGES,mousepad)
@@ -51,6 +49,8 @@ else
 	@$(call add,LIVE_PACKAGES,java-11-openjdk)
 endif
 	@$(call add,LIVE_PACKAGES,xorg-conf-libinput-touchpad)
+	@$(call add,LIVE_PACKAGES,btrfs-progs)
+	@$(call add,LIVE_PACKAGES,xfsprogs xfsinfo xfsdump)
 	@$(call add,LIVE_LISTS,$(call tags,base rescue))
 	@$(call add,LIVE_LISTS,$(call tags,base extra))
 	@$(call add,CONTROL,tcb_chkpwd:tcb)
@@ -73,6 +73,7 @@ mixin/education-base: \
 	@$(call add,THE_PACKAGES,bluez pulseaudio-bluez)
 	@$(call add,THE_PACKAGES,alterator-fbi)
 	@$(call add,THE_PACKAGES,alt-rootfs-installer)
+	@$(call add,THE_PACKAGES,btrfs-progs)
 	@$(call add,STAGE2_PACKAGES,xorg-conf-libinput-touchpad)
 	@$(call add,STAGE2_PACKAGES,chrony)
 
@@ -86,6 +87,7 @@ mixin/education-installer: \
 	mixin/education-base \
 	use/docs/manual use/docs/indexhtml
 	@$(call add,INSTALL2_PACKAGES,disable-usb-autosuspend)
+	@$(call add,INSTALL2_PACKAGES,btrfs-progs)
 	@$(call add,MAIN_GROUPS,education/00_base)
 	@$(call add,MAIN_GROUPS,education/01_preschool)
 	@$(call add,MAIN_GROUPS,education/02_gradeschool)
@@ -128,7 +130,7 @@ else
 	@$(call add,MAIN_GROUPS,education/09_video-conferencing)
 endif	# e2k%
 ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
-	@$(call set,KFLAVOURS,std-def)
+	@$(call set,KFLAVOURS,std-def un-def)
 	@$(call add,MAIN_PACKAGES,kernel-headers-std-def)
 	@$(call add,MAIN_PACKAGES,kernel-headers-modules-std-def)
 	@$(call add,MAIN_PACKAGES,kernel-headers-std-def)
@@ -137,7 +139,6 @@ ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
 	@$(call add,THE_KMODULES,lsadrv bbswitch)
 	@$(call add,THE_KMODULES,staging)
 	@$(call add,MAIN_KMODULES,bbswitch)
-	@$(call add,THE_PACKAGES,chromium)
 	@$(call add,THE_PACKAGES,mc-full)
 	@$(call add,THE_PACKAGES,remmina remmina-plugins)
 endif
