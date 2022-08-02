@@ -5,6 +5,9 @@ catdoc
 gdb
 fuse-cryfs
 libnss-mdns
+libcuda
+nvidia-modprobe
+plasma5-libkscreen-utils
 
 alt-csp-cryptopro
 rosa-crypto-tool
@@ -13,17 +16,15 @@ altmediawriter
 #
 gparted
 #
+accountsservice
 kde5-ksystemlog
 kde5-kcm-grub2
 #
 #appinstall@X86
-synaptic-kde
-#plasma5-discover-maxi
-plasma5-discover
+synaptic-kde@META
+plasma5-discover-maxi@META
+plasma5-discover-flatpak@META
 flatpak-repo-flathub
-plasma5-discover-flatpak
-plasma5-discover-fwupd
-plasma5-discover-packagekit
 openssl-gost-engine
 kde5-kreslimit
 kde5-file-actions-gost
@@ -50,6 +51,7 @@ kde5-k3b
 #kmymoney
 #kmymoney-i18n
 #kde5-plasma-yawp
+alt-app-starter
 
 qstardict
 stardict-mueller7
@@ -77,9 +79,6 @@ kamoso
 kde5-ktorrent
 #eiskaltdcpp-qt
 #kde5-kio-gdrive
-
-# 3dparty
-#skype-preinstall@IA32
 
 kde5@META
 kde5-big@META

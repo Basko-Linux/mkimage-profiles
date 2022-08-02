@@ -111,7 +111,7 @@ vm/regular-kde5: vm/.regular-gtk mixin/regular-kde5 mixin/vm-archdep-x11
 
 vm/regular-lxqt: vm/.regular-gtk mixin/regular-lxqt mixin/vm-archdep-x11; @:
 
-ifeq (,$(filter-out aarch64 armh,$(ARCH)))
+ifeq (,$(filter-out aarch64,$(ARCH)))
 # Raspberry Pi 4
 vm/regular-jeos-systemd-rpi: vm/systemd mixin/regular-vm-jeos use/tty/AMA0 \
 	use/arm-rpi4/kernel; @:
@@ -130,20 +130,6 @@ vm/regular-lxqt-rpi: vm/.regular-gtk mixin/regular-lxqt use/arm-rpi4/full; @:
 vm/regular-mate-rpi: vm/.regular-gtk mixin/regular-mate use/arm-rpi4/full; @:
 
 vm/regular-xfce-rpi: vm/.regular-gtk mixin/regular-xfce use/arm-rpi4/full; @:
-
-ifeq (,$(filter-out aarch64,$(ARCH)))
-# Nvidia Tegra (Jetson Nano only)
-vm/regular-cinnamon-tegra: vm/.regular-gtk mixin/regular-cinnamon \
-	use/x11/lightdm/slick use/aarch64-tegra; @:
-
-vm/regular-kde5-tegra: vm/.regular-gtk mixin/regular-kde5 use/aarch64-tegra
-	@$(call add,THE_PACKAGES,kde5-ksplash-disabled)
-
-vm/regular-lxqt-tegra: vm/.regular-gtk mixin/regular-lxqt use/aarch64-tegra; @:
-
-vm/regular-mate-tegra: vm/.regular-gtk mixin/regular-mate use/aarch64-tegra; @:
-
-vm/regular-xfce-tegra: vm/.regular-gtk mixin/regular-xfce use/aarch64-tegra; @:
 
 endif
 
@@ -177,7 +163,6 @@ vm/regular-mate-mcom02-mali: vm/.regular-gtk mixin/mate-base \
 vm/regular-xfce-mcom02-mali: vm/.regular-gtk mixin/regular-xfce \
 	use/armh-mcom02/mali
 	@$(call add,THE_PACKAGES,xfce-reduced-resource)
-endif
 endif
 
 ifeq (,$(filter-out mipsel,$(ARCH)))

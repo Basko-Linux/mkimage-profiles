@@ -14,6 +14,7 @@ use/server/mini: use/server/base use/services/lvm2-disable
 	@$(call add,MAIN_LISTS,osec)
 	@$(call add,DEFAULT_SERVICES_DISABLE,messagebus)
 
+ifeq (,$(filter-out x86_64,$(ARCH)))
 use/server/ovz-base: use/server
 	@$(call set,STAGE1_KFLAVOURS,std-def)
 	@$(call set,KFLAVOURS,std-def ovz-el)
@@ -26,6 +27,7 @@ use/server/ovz: use/server/ovz-base
 	@$(call add,MAIN_KMODULES,drbd9 kvm)
 	@$(call add,MAIN_KMODULES,staging)
 	@$(call add,BASE_LISTS,$(call tags,server openvz))
+endif
 
 use/server/virt: use/server use/kernel
 	@$(call add,BASE_PACKAGES,openssh)
@@ -49,10 +51,11 @@ use/server/groups/services: use/server
 	@$(call add,MAIN_GROUPS,server/dhcp server/dns server/mail)
 	@$(call add,MAIN_GROUPS,server/apache2 server/nginx)
 	@$(call add,MAIN_GROUPS,server/mariadb server/pgsql)
-	@$(call add,MAIN_GROUPS,server/php7)
+	@$(call add,MAIN_GROUPS,server/php8.0)
+	@$(call add,MAIN_GROUPS,server/php8.1)
 	@$(call add,MAIN_GROUPS,server/ftp server/rsync)
 	@$(call add,MAIN_GROUPS,server/kvm)
 	@$(call add,DEFAULT_SERVICES_ENABLE,libvirtd)
-	@$(call add,DEFAULT_SERVICES_DISABLE,php7-fpm)
+	@$(call add,DEFAULT_SERVICES_DISABLE,php8.0-fpm php8.1-fpm)
 
 use/server/groups/base: use/server/groups/tools use/server/groups/services; @:

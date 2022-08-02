@@ -19,7 +19,7 @@ mixin/kworkstation-common-deps: \
 	use/l10n/default/ru_RU \
 	use/control use/services \
 	use/x11/intel use/x11/radeon use/x11/amdgpu use/x11/nvidia \
-	use/x11/sddm \
+	use/x11/sddm use/x11/wacom \
 	use/memtest \
 	use/init/systemd \
 	use/cleanup/live-no-cleanupdb \
@@ -42,6 +42,7 @@ endif
 	@$(call add,BASE_PACKAGES,plymouth-plugin-label)
 	@$(call add,THE_PACKAGES,pam-limits-desktop)
 	@$(call add,THE_PACKAGES,systemd-presets-kdesktop)
+	@$(call add,THE_PACKAGES,systemd-oomd-defaults)
 	@$(call add,THE_PACKAGES,etcnet-defaults-desktop)
 	@$(call add,THE_PACKAGES,btrfs-progs)
 	@$(call set,INSTALL2_FONTS,fonts-ttf-google-croscore-arimo)
@@ -55,6 +56,8 @@ endif
 	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-sans-symbols)
 	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-sans-symbols2)
 	@$(call add,THE_PACKAGES,fonts-ttf-material-icons)
+	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-emoji)
+	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-emoji-color)
 	@$(call add,THE_LISTS,$(call tags,basesystem alterator))
 	@$(call add,MAIN_LISTS,kworkstation/disk-install)
 	@$(call add,THE_LISTS,tagged/desktop+xorg)
@@ -92,8 +95,8 @@ endif
 	@$(call add,CLEANUP_PACKAGES,'^kernel-modules-drm-nouveau.*')
 	@$(call set,META_VOL_SET,ALT)
 	@$(call set,META_PUBLISHER,BaseALT Ltd)
-	@$(call set,META_VOL_ID,ALT $(DISTRO_VERSION)$(STATUS) Workstation K $(ARCH))
-	@$(call set,META_APP_ID,ALT $(DISTRO_VERSION)$(STATUS) Workstation K $(ARCH) $(shell date +%F))
+	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) $(ARCH))
+	@$(call set,META_APP_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) $(ARCH) $(shell date +%F))
 
 mixin/kworkstation-install-deps: \
 	distro/.installer mixin/desktop-installer \
@@ -108,8 +111,6 @@ mixin/kworkstation-install-opts:
 	@$(call set,INSTALLER,centaurus)
 	@$(call add,STAGE1_MODLISTS,stage2-ntfs)
 	@$(call add,STAGE2_KMODULES,drm-nouveau)
-	@$(call add,STAGE2_BOOTARGS,logo.nologo loglevel=3 udev.log-priority=3) # vga=current
-	@$(call add,STAGE2_BOOTARGS,systemd.show_status=0)
 	@$(call add,THE_PACKAGES,installer-feature-nfs-client-stage3)
 	@$(call add,INSTALL2_PACKAGES,ntfs-3g)
 	@$(call add,INSTALL2_PACKAGES,btrfs-progs)
@@ -125,8 +126,9 @@ mixin/kworkstation-install-opts:
 	@$(call add,INSTALL2_PACKAGES,installer-feature-set-tz)
 	@$(call add,INSTALL2_PACKAGES,installer-feature-rootgtktheme-stage2)
 	@$(call add,INSTALL2_PACKAGES,installer-feature-alterator-setup-stage2)
-	@$(call add,INSTALL2_PACKAGES,installer-feature-sddm-tabletpc)
+	@$(call add,INSTALL2_PACKAGES,installer-feature-sddm-setup)
 	@$(call add,INSTALL2_PACKAGES,installer-feature-packagekit-setup)
+	@$(call add,INSTALL2_PACKAGES,installer-feature-xprofile-clear)
 	@$(call add,INSTALL2_PACKAGES,apt-scripts-nvidia)
 	@$(call add,INSTALL2_PACKAGES,volumes-profile-kdesktop)
 	@$(call add,INSTALL2_PACKAGES,udev-rules-ioschedulers)
@@ -137,6 +139,8 @@ mixin/kworkstation-install-opts:
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,shared-mime-info glib-networking libgtk+3-schemas gtk-update-icon-cache libgtk+3)
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,libat-spi2-core at-spi2-core at-spi2-atk)
 	@$(call add,MAIN_GROUPS,$(kworkstation_groups))
+	@$(call add,THE_PROFILES,kworkstation/10-workstation)
+	@$(call add,THE_PROFILES,kworkstation/20-webterminal)
 	@$(call add,BASE_PACKAGES,alterator-postinstall)
 	@$(call add,BASE_PACKAGES,make-initrd-mdadm mdadm)
 	@$(call add,BASE_PACKAGES,apt-scripts-nvidia)
@@ -147,6 +151,8 @@ mixin/kworkstation-install-opts:
 	@$(call add,LIVE_LISTS,$(call tags,rescue crypto))
 	@$(call add,LIVE_LISTS,sound/pulseaudio)
 	@$(call add,LIVE_LISTS,kworkstation/live-rescue)
+	@$(call add,LIVE_LISTS,kworkstation/printing)
+	@$(call add,LIVE_LISTS,kworkstation/scanning)
 	@$(call add,THE_LISTS,kworkstation/kde5-base)
 	@$(call add,SERVICES_ENABLE,sshd)
 
@@ -177,8 +183,8 @@ mixin/kworkstation-live-opts:
 	@$(call add,SERVICES_DISABLE,sshd)
 	@$(call add,CLEANUP_LIVE_PACKAGES,'flatpak')
 	@$(call add,CLEANUP_LIVE_PACKAGES,'snapd')
-	@$(call set,META_VOL_ID,ALT $(DISTRO_VERSION)$(STATUS) Workstation K Live $(ARCH))
-	@$(call set,META_APP_ID,ALT $(DISTRO_VERSION)$(STATUS) Workstation K Live $(ARCH) $(shell date +%F))
+	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) Live $(ARCH))
+	@$(call set,META_APP_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) Live $(ARCH) $(shell date +%F))
 
 distro/kworkstation-install: \
 	kworkstation_groups = $(addprefix kworkstation/,\
@@ -188,7 +194,7 @@ distro/kworkstation-install: \
 	printing scanning \
 	video-editing sound-editing graphics-editing \
 	z01-add-clients clients-ad clients-ipa clients-backup clients-cloud clients-monitor \
-	z02-add-additional add-oem add-tablet)
+	z02-add-additional add-oem add-tablet add-webterminal)
 
 distro/kworkstation-install: \
 	mixin/kworkstation-install-deps \

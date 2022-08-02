@@ -1,14 +1,17 @@
 
 kde5-plasma-applet-places-widget
 
+altmediawriter
 kamoso
 plasma5-kinfocenter
 plasma5-bluedevil
+plasma5-disks
 kde5-khelpcenter
 kde5-filelight
 kde5-spectacle
 inxi
 glmark2
+glmark2-wayland
 glxgears
 glxinfo
 efivar

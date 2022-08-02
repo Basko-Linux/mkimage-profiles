@@ -1,4 +1,5 @@
 # R7 Office
+libgtkglext
 libGConf
 fonts-ttf-liberation
 # CryptoPRO
@@ -8,7 +9,36 @@ gnupg-pkcs11-scd
 libpkcs11-helper
 gnupg2
 # 1C
+#1c-preinstall-full@X86 # ms-fonts license
 1c-preinstall@X86
+postgresql14-1C
+postgresql14-1C-server
+postgresql14-1C-contrib
+haspd@IA32
+# VipNet CSP
+vipnetcsp4-preinstall
+libjcpkcs11
+# MyOffice standart edition
+postgresql12-contrib
+# 2FA
+#opensc
+#pcsc-lite-ccid
+#librtpkcs11ecp
+pcsc-tools
+gnutls-utils
+pkcs11-profiles-rutokenecp
+pam_pkcs11-isbc
+#isbc-pkcs11
+pkcs11-profiles-isbc
+pkcs11-profiles-p11-kit-proxy
+card-actions
+libjcpkcs11
+libp11
+libp11-kit
+# misc preinstalls
+yandex-browser-preinstall
+kesl10-preinstall
+sputnik-browser-preinstall
 # FSIN
 openssh-gostcrypto
 openssh-clients-gostcrypto openssh-askpass-common-gostcrypto
@@ -25,9 +55,10 @@ alt-customize-branding
 task-samba-dc bind-utils tdb-utils installer-feature-sambaDC-stage3
 #
 alterator-kiosk
+alterator-net-domain
 #
 # KDE
-#kde5-maxi
+#kde5-maxi@META
 kde5-kfloppy
 #kde5-telepathy
 # MISC
@@ -37,3 +68,5 @@ vsftpd
 anonftp
 vlock
 telnet
+kde5-display-manager-lightdm
+glibc

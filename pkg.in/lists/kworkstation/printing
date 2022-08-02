@@ -8,6 +8,9 @@ printer-drivers-X11
 hplip-hpijs
 hplip-PPDs
 printer-testpages
+printer-driver-oki
+printer-driver-brlaser
+epson-inkjet-printer-escpr
 
 bluez-cups
 
