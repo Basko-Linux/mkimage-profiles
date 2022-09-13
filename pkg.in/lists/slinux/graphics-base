@@ -6,6 +6,7 @@ gphoto2
 sane
 sane-airscan
 hplip-sane@!riscv64
+epsonscan2
 xsane@!riscv64
 xsane-doc@!riscv64
 xsane-doc-ru@!riscv64
