@@ -38,7 +38,7 @@ mixin/e2k-mate: use/e2k/x11 use/x11/xorg use/fonts/install2 \
 	@$(call add,THE_PACKAGES,zsh bash-completion)
 
 ### regular.mk
-mixin/regular-x11: use/luks use/volumes/regular \
+mixin/regular-x11: use/luks use/volumes/alt-workstation \
 	use/browser/firefox use/kernel/disable-usb-autosuspend \
 	use/branding use/ntp/chrony use/services/lvm2-disable
 	@$(call add,THE_LISTS,$(call tags,(base || desktop) && regular && !extra))
@@ -46,7 +46,7 @@ mixin/regular-x11: use/luks use/volumes/regular \
 	@$(call add,THE_PACKAGES,btrfs-progs)
 	@$(call add,THE_PACKAGES,gpm)
 	@$(call add,DEFAULT_SERVICES_DISABLE,gpm powertop)
-ifneq (,$(BRANCH))
+ifneq (sisyphus,$(BRANCH))
 	@$(call set,FX_FLAVOUR,-esr)
 endif
 
@@ -54,9 +54,9 @@ endif
 mixin/regular-desktop: +alsa +nm-native \
 	use/x11/xorg use/xdg-user-dirs use/l10n \
 	use/fonts/otf/adobe use/fonts/otf/mozilla use/branding/notes
+	@$(call set,LOCALES,en_US ru_RU pt_BR)
 	@$(call add,THE_PACKAGES,pam-limits-desktop beesu polkit dvd+rw-tools)
 	@$(call add,THE_PACKAGES,polkit-rule-admin-root)
-	@$(call add,THE_PACKAGES,polkit-rule-udisks2-mount)
 	@$(call add,THE_BRANDING,alterator graphics indexhtml)
 ifneq (,$(filter-out e2k%,$(ARCH)))
 	@$(call add,THE_BRANDING,notes)
@@ -74,7 +74,6 @@ mixin/desktop-extra:
 	@$(call add,BASE_LISTS,$(call tags,(archive || base) && extra))
 
 mixin/regular-wmaker: use/fonts/ttf/redhat use/x11/wmaker +nm-gtk
-	@$(call add,LIVE_PACKAGES,livecd-install-wmaker)
 	@$(call add,LIVE_PACKAGES,installer-feature-no-xconsole-stage3)
 	@$(call add,MAIN_PACKAGES,wmgtemp wmhdaps wmxkbru xxkb)
 
@@ -84,8 +83,7 @@ mixin/regular-icewm: use/fonts/ttf/redhat +icewm +nm-gtk
 	@$(call add,THE_PACKAGES,mnt)
 
 # gdm2.20 can reboot/halt with both sysvinit and systemd, and is slim
-mixin/regular-gnustep: use/x11/gnustep use/x11/gdm2.20 use/mediacheck \
-	use/browser/seamonkey
+mixin/regular-gnustep: use/x11/gnustep use/mediacheck use/browser/seamonkey
 	@$(call add,THE_BRANDING,graphics)
 
 mixin/regular-cinnamon: use/x11/cinnamon use/x11/lightdm/slick +nm-gtk \
@@ -94,9 +92,12 @@ mixin/regular-cinnamon: use/x11/cinnamon use/x11/lightdm/slick +nm-gtk \
 mixin/regular-deepin: use/x11/deepin use/browser/chromium +nm; @:
 
 mixin/regular-gnome3: use/x11/gnome3 use/fonts/ttf/redhat +nm-gtk
-	@$(call add,THE_PACKAGES,gnome3-regular xcalib templates)
+	@$(call add,THE_PACKAGES,xcalib templates)
 	@$(call add,THE_PACKAGES,chrome-gnome-shell)
 	@$(call add,THE_PACKAGES,qt5-wayland)
+ifeq (sisyphus,$(BRANCH))
+	@$(call add,THE_PACKAGES,gnome-packagekit)
+endif
 
 mixin/regular-kde5: use/x11/kde5 use/browser/falkon \
 	use/x11/kde5-display-manager-lightdm \
@@ -113,12 +114,13 @@ mixin/xfce-base: use/x11/xfce +nm-gtk \
 	@$(call add,THE_PACKAGES,xfce4-regular)
 	@$(call add,THE_PACKAGES,xreader)
 	@$(call add,THE_PACKAGES,xdg-user-dirs-gtk)
+	@$(call add,THE_PACKAGES,xkill)
 
 mixin/regular-xfce: mixin/xfce-base use/domain-client +pulse
 	@$(call add,THE_PACKAGES,pavucontrol xscreensaver-frontend)
 	@$(call add,THE_PACKAGES,xfce4-pulseaudio-plugin xfce-polkit)
 
-mixin/regular-xfce-sysv: mixin/xfce-base \
+mixin/regular-xfce-sysv: mixin/xfce-base +net-eth \
 	use/fonts/otf/adobe use/fonts/otf/mozilla
 	@$(call add,THE_LISTS,xfce-sysv)
 

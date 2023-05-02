@@ -68,7 +68,7 @@ distro/.server-v-base: distro/.base distro/.installer \
 	use/install2/vnc/full \
 	use/install2/xfs use/install2/fat use/install2/stage3 \
 	use/kernel/server use/kernel/drm \
-	use/firmware use/firmware/cpu \
+	use/firmware/server use/firmware/cpu \
 	use/net/etcnet use/net-ssh \
 	use/stage2/ata use/stage2/fs use/stage2/hid use/stage2/md \
 	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
@@ -142,7 +142,7 @@ endif
 	@$(call add,DEFAULT_SERVICES_DISABLE,ahttpd alteratord)
 	@$(call add,DEFAULT_SERVICES_ENABLE,pve-manager pve-cluster pveproxy pvedaemon pvestatd \
 		pve-firewall pvefw-logger pve-guests pve-ha-crm pve-ha-lrm spiceproxy \
-		lxc lxcfs lxc-net lxc-monitord qmeventd)
+		lxc lxcfs lxc-net lxc-monitord qmeventd pvescheduler pve-lxc-syscalld)
 	@$(call add,SERVICES_ENABLE,multipathd)
 
 #	@$(call add,MAIN_GROUPS,server-v/141-cockpit $(cockpit))

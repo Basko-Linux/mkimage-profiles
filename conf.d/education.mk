@@ -38,6 +38,7 @@ ifeq (distro,$(IMAGE_CLASS))
 mixin/education-live: \
 	use/live/suspend \
 	use/live/repo use/live/x11 use/live/rw \
+	use/rescue/base use/memtest \
 	use/cleanup/live-no-cleanupdb
 	@$(call add,LIVE_PACKAGES,livecd-timezone)
 	@$(call add,LIVE_PACKAGES,mc-full)
@@ -66,7 +67,7 @@ mixin/education-base: \
 	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
 	use/stage2/rtc use/stage2/sbc use/stage2/scsi use/stage2/usb
 	@$(call set,INSTALLER,education)
-	@$(call set,META_VOL_ID,ALT Education 10.0 $(ARCH))
+	@$(call set,META_VOL_ID,ALT Education 10.1 $(ARCH))
 	@$(call set,META_PUBLISHER,BaseALT Ltd)
 	@$(call set,META_APP_ID,$(DISTRO_VERSION) $(ARCH))
 	@$(call set,META_VOL_SET,ALT)
@@ -80,7 +81,7 @@ mixin/education-base: \
 mixin/education-installer: \
 	+installer \
 	use/install2/repo \
-	use/memtest \
+	use/rescue/base use/memtest \
 	use/branding/complete \
 	use/install2/vnc use/install2/full \
 	use/install2/fat \
@@ -155,6 +156,8 @@ ifeq (vm,$(IMAGE_CLASS))
 
 vm/.alt-education: vm/systemd use/repo use/oem/distro mixin/education
 	@$(call add,DEFAULT_SERVICES_DISABLE,multipathd)
+	@$(call add,THE_PACKAGES,task-edu-lite)
+	@$(call add,PINNED_PACKAGES,task-edu-lite:Extra)
 
 vm/alt-education:: vm/.alt-education +vmguest; @:
 
@@ -168,8 +171,7 @@ vm/alt-education:: use/no-sleep use/arm-rpi4; @:
 endif
 
 ifeq (,$(filter-out aarch64,$(ARCH)))
-vm/alt-education-rpi: vm/.alt-education use/arm-rpi4/full
-	@$(call add,THE_PACKAGES,task-edu-lite)
+vm/alt-education-rpi: vm/.alt-education use/arm-rpi4/full; @:
 endif
 
 endif

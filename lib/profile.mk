@@ -1,4 +1,4 @@
-ifndef MKIMAGE_PROFILES
+ifeq (,$(MKIMAGE_PROFILES))
 $(error this makefile is designed to be included in toplevel one)
 endif
 
@@ -6,7 +6,7 @@ ifneq (,$(filter-out $(DIRECT_TARGETS),$(MAKECMDGOALS)))
 # this could have come from env; or could be symlinked; or is made anew
 # (the reuse rationale is avoiding extra tmpdir lookups)
 # NB: immediate assignment matters
-ifndef BUILDDIR
+ifeq (,$(BUILDDIR))
 BUILDLINK := $(realpath $(SYMLINK))
 BUILDDIR  := $(shell \
 if [ -s "$(SYMLINK)" -a "$(NUM_TARGETS)" = 1 ] && \
@@ -33,7 +33,7 @@ RC = $(HOME)/.mkimage/profiles.mk
 
 # step 1: initialize the off-tree mkimage profile (BUILDDIR)
 # NB: our output MUST go into stderr to escape POSTPROC
-profile/init: distclean
+profile/init: $(shell [ -L $(BUILDDIR) ] || echo distclean)
 	@{ \
 	if [ "`realpath "$(BUILDDIR)/"`" = / ]; then \
 		echo "$(TIME) ERROR: invalid BUILDDIR: \`$(BUILDDIR)'"; \
@@ -75,7 +75,7 @@ profile/init: distclean
 		git show -s --format=%H > "$(BUILDDIR)"/commit; \
 	fi; \
 	mp-commit -i "$(BUILDDIR)" "derivative profile initialized"; \
-	if [ -w . ]; then \
+	if [ -w . -a ! -L "$(BUILDDIR)" ]; then \
 		rm -f "$(SYMLINK)" && \
 		ln -s "$(BUILDDIR)" "$(SYMLINK)" && \
 		if [ -z "$(QUIET)" ]; then \
@@ -100,7 +100,7 @@ profile/bare: profile/init use/pkgpriorities
 	@$(call try,GLOBAL_VERBOSE,)
 	@$(call try,IMAGEDIR,$(wildcard $(IMAGEDIR)))
 	@$(call try,LOGDIR,$(wildcard $(LOGDIR)))
-ifeq (,$(BRANCH))
+ifeq (sisyphus,$(BRANCH))
 	@$(call try,BRANDING,alt-sisyphus)
 else
 	@$(call try,BRANDING,alt-starterkit)

@@ -6,24 +6,24 @@ distro/.regular-bare: distro/.base use/kernel/net use/docs/license \
 	use/stage2/ata use/stage2/fs use/stage2/hid use/stage2/md \
 	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
 	use/stage2/rtc use/stage2/sbc use/stage2/scsi use/stage2/usb \
-	use/tty
+	use/stage2/drm use/tty
 	@$(call try,SAVE_PROFILE,yes)
-ifeq (,$(BRANCH))
+	@$(call add,STAGE1_PACKAGES,firmware-linux)
+	@$(call add,STAGE1_KMODULES,drm)
+ifeq (sisyphus,$(BRANCH))
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTLOADER,grubpcboot)
 endif
-	@$(call set,LIVE_REPO,http/yandex)
-	@$(call set,REPO,http/yandex)
 endif
 
 # base target (for most images)
-distro/.regular-base: distro/.regular-bare use/vmguest use/memtest +efi; @:
+distro/.regular-base: distro/.regular-bare use/vmguest use/memtest use/efi/dtb +efi; @:
 
 # graphical target (not enforcing xorg drivers or blobs)
 distro/.regular-x11: distro/.regular-base mixin/regular-x11 \
 	use/x11/wacom use/x11/amdgpu +wireless \
 	use/live/x11 use/live/repo \
-	use/live/suspend use/browser/firefox/live \
+	use/live/suspend use/browser/firefox \
 	use/syslinux/ui/gfxboot use/grub/ui/gfxboot
 	@$(call add,THE_BRANDING,bootloader)
 	@$(call add,THE_LISTS,$(call tags,(base || desktop) && regular))
@@ -32,22 +32,23 @@ distro/.regular-x11: distro/.regular-base mixin/regular-x11 \
 	@$(call add,DEFAULT_SERVICES_DISABLE,gpm powertop)
 
 # Network install
-ifeq (,$(BRANCH))
-ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
-distro/regular-net-install: distro/grub-net-install
+distro/regular-net-install: distro/grub-net-install; @:
+ifeq (sisyphus,$(BRANCH))
 	@$(call set,BOOTCHAIN_OEM_SRV_NETINST,nightly.altlinux.org)
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTCHAIN_OEM_URL_NETINST,/sisyphus/snapshots/$(DATE)/regular-NAME-$(DATE)-$(ARCH).iso)
 else
-	@$(call set,BOOTCHAIN_OEM_URL_NETINST,/sisyphus-aarch64/snapshots/$(DATE)/regular-NAME-$(DATE)-$(ARCH).iso)
-endif
+	@$(call set,BOOTCHAIN_OEM_URL_NETINST,/sisyphus-$(ARCH)/snapshots/$(DATE)/regular-NAME-$(DATE)-$(ARCH).iso)
 endif
 endif
 
 # WM base target
 distro/.regular-wm: distro/.regular-x11 \
 	mixin/regular-desktop +vmguest \
-	use/live/rw use/live/install; @:
+	use/live/rw +live-installer
+	@$(call set,INSTALLER,alt-workstation)
+	@$(call set,GRUB_DEFAULT,live)
+	@$(call set,SYSLINUX_DEFAULT,live)
 
 # DE base target
 # TODO: use/plymouth/live when luks+plymouth is done, see also #28255
@@ -87,7 +88,7 @@ distro/.regular-jeos-base: distro/.regular-bare \
 	@$(call add,THE_LISTS,openssh)
 
 # ...and for somewhat bare distros
-distro/.regular-jeos: distro/.regular-jeos-base use/stage2/kms \
+distro/.regular-jeos: distro/.regular-jeos-base \
 	use/install2/cleanup/everything use/install2/cleanup/kernel/everything \
 	use/syslinux/lateboot.cfg use/cleanup/jeos
 	@$(call add,BASE_PACKAGES,make-initrd-mdadm cpio)
@@ -95,6 +96,9 @@ distro/.regular-jeos: distro/.regular-jeos-base use/stage2/kms \
 distro/.regular-jeos-full: distro/.regular-jeos use/install2/vmguest \
 	use/volumes/jeos use/ntp/chrony use/bootloader/grub \
 	use/grub/localboot_bios.cfg +efi
+ifeq (sisyphus,$(BRANCH))
+	@$(call set,KFLAVOURS,un-def)
+endif
 	@$(call add,BASE_PACKAGES,nfs-utils gdisk)
 	@$(call add,INSTALL2_PACKAGES,fdisk)
 ifeq (,$(filter-out e2k%,$(ARCH)))
@@ -105,7 +109,6 @@ else
 	@$(call add,CLEANUP_PACKAGES,bridge-utils)
 endif
 	@$(call add,DEFAULT_SERVICES_DISABLE,fbsetfont)
-	@$(call add,BASE_KMODULES,drm)
 
 # NB:
 # - stock cleanup is not enough (or installer-common-stage3 deps soaring)
@@ -127,7 +130,7 @@ endif
 distro/.regular-install-x11: distro/.regular-install +vmguest +wireless \
 	use/install2/suspend mixin/regular-desktop mixin/regular-x11 \
 	use/branding/complete use/branding/slideshow/once
-	@$(call set,INSTALLER,altlinux-desktop)
+	@$(call set,INSTALLER,alt-workstation)
 
 # assumes somewhat more experienced user
 distro/.regular-install-x11-full: distro/.regular-install-x11 \
@@ -149,8 +152,8 @@ distro/regular-wmaker-sysv: distro/.regular-desktop-sysv \
 	mixin/regular-wmaker use/live/autologin
 	@$(call add,LIVE_PACKAGES,wdm wmxkbru)
 
-distro/regular-gnustep-sysv: distro/.regular-desktop-sysv \
-	mixin/regular-wmaker mixin/regular-gnustep; @:
+distro/regular-gnustep-sysv: distro/regular-wmaker-sysv \
+	mixin/regular-gnustep; @:
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTLOADER,isolinux)
 endif
@@ -160,7 +163,7 @@ distro/regular-gnustep-systemd: distro/.regular-wm +systemd \
 
 distro/regular-xfce: distro/.regular-gtk mixin/regular-xfce; @:
 ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
-ifeq (,$(BRANCH))
+ifeq (sisyphus,$(BRANCH))
 	@$(call set,KFLAVOURS,std-def un-def)
 else
 	@$(call set,KFLAVOURS,un-def)
@@ -171,6 +174,9 @@ distro/regular-xfce-install: distro/.regular-install-x11-systemd \
 	mixin/regular-xfce; @:
 
 distro/regular-xfce-sysv: distro/.regular-gtk-sysv mixin/regular-xfce-sysv; @:
+
+distro/regular-gnome3-install: distro/.regular-install-x11-systemd mixin/regular-gnome3 \
+	use/kernel/latest +plymouth; @:
 
 distro/regular-xfce-sysv-install: distro/.regular-install-x11-full \
 	mixin/regular-xfce-sysv use/init/sysv/polkit use/x11/gdm2.20; @:
@@ -241,6 +247,8 @@ distro/.regular-server-full: distro/.regular-server-managed \
 	@$(call add,MAIN_GROUPS,server/sambaDC)
 	@$(call add,MAIN_GROUPS,tools/hyperv)
 	@$(call add,BASE_KMODULES,staging)
+	@$(call add,INSTALL2_PACKAGES,btrfs-progs)
+	@$(call add,BASE_PACKAGES,btrfs-progs)
 
 distro/regular-server-systemd: distro/.regular-server-full \
 	+systemd +systemd-optimal; @:

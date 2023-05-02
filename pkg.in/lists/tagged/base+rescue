@@ -11,13 +11,61 @@ man
 man-pages
 util-linux
 eject
+binutils
 
 # Package management
 apt-repo
 aptitude
 
+# Disk utils
+dc3dd
+dcfldd
+ddrescue
+gpart
+hdparm
+lsblk
+lsmount
+lvm2
+mdadm-tool
+open-iscsi
+photorec
+scalpel
+sleuthkit
+smartmontools
+testdisk
+wipefreespace
+whdd
+
 # Partition management
+cfdisk
+cgdisk
 fdisk
+fixparts
+gdisk
+sfdisk
+parted
+
+# Filesystem maintenance
+btrfs-progs
+dosfstools
+e2fsprogs
+exfatprogs
+f2fs-tools
+jfsprogs
+mtools
+ntfs-3g
+reiser4progs
+reiserfsprogs
+xfsprogs
+
+# Applications/Networking
+cifs-utils
+curl
+davfs2
+rsync
+nfs-utils
+ntpdate
+wget
 
 # Serial console
 agetty
@@ -27,6 +75,8 @@ gpm
 
 # File management
 mc
+vim-console
+nano
 
 # Provisioning
 partclone
@@ -37,3 +87,4 @@ glibc-locales
 # Misc
 rescue-launcher
 system-backup
+gostsum

@@ -11,7 +11,7 @@ distro/syslinux: distro/.boot \
 endif
 
 ifeq (,$(filter-out i586 x86_64 aarch64 ppc64le riscv64,$(ARCH)))
-distro/grub: distro/.boot use/grub use/hdt +efi \
+distro/grub: distro/.boot use/grub use/hdt use/memtest +efi \
 	use/grub/localboot_bios.cfg use/grub/sdab_bios.cfg; @:
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTLOADER,grubpcboot)
@@ -141,6 +141,11 @@ distro/live-gimp: distro/live-icewm use/live/ru
 	@$(call add,LIVE_PACKAGES,darktable geeqie rawstudio ufraw)
 	@$(call add,LIVE_PACKAGES,macrofusion)
 	@$(call add,LIVE_PACKAGES,qtfm openssh-clients rsync usbutils)
+
+distro/live-blender: distro/.live-games use/live/runapp
+	@$(call add,LIVE_PACKAGES,blender)
+	@$(call set,LIVE_RUNAPP_BINARY,blender)
+	@$(call try,HOMEPAGE,http://blender.com/)
 
 # NB: use/browser won't do as it provides a *single* browser ATM
 distro/live-privacy: distro/.base +efi +systemd +vmguest \

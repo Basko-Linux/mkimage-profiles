@@ -11,9 +11,9 @@ gnupg2
 # 1C
 #1c-preinstall-full@X86 # ms-fonts license
 1c-preinstall@X86
-postgresql14-1C
-postgresql14-1C-server
-postgresql14-1C-contrib
+postgresql15-1C
+postgresql15-1C-server
+postgresql15-1C-contrib
 haspd@IA32
 # VipNet CSP
 vipnetcsp4-preinstall
@@ -36,9 +36,7 @@ libjcpkcs11
 libp11
 libp11-kit
 # misc preinstalls
-yandex-browser-preinstall
 kesl10-preinstall
-sputnik-browser-preinstall
 # FSIN
 openssh-gostcrypto
 openssh-clients-gostcrypto openssh-askpass-common-gostcrypto
@@ -53,6 +51,7 @@ freeipa-server freeipa-server-dns
 #
 alt-customize-branding
 task-samba-dc bind-utils tdb-utils installer-feature-sambaDC-stage3
+admc admx-basealt admx-samba admx-chromium admx-firefox admx-msi-setup
 #
 alterator-kiosk
 alterator-net-domain
@@ -70,3 +69,13 @@ vlock
 telnet
 kde5-display-manager-lightdm
 glibc
+alterator-dhcp
+alterator-mirror
+alterator-netinst
+alterator-updates
+alien
+virt-viewer
+x2goclient
+x2goserver x2goserver-printing cups-x2go
+x2gobroker x2gobroker-ssh x2gobroker-daemon x2gobroker-authservice
+openuds-client openuds-actor

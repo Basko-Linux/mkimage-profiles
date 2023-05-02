@@ -22,12 +22,10 @@ thunar-volman-plugin
 thunar-archive-plugin
 
 #screensaver
-xfce4-screensaver@X86
-desktop-screensaver-modules-xscreensaver@X86
-desktop-screensaver-modules-xscreensaver-gl@X86
+xfce4-screensaver
+desktop-screensaver-modules-xscreensaver
+desktop-screensaver-modules-xscreensaver-gl
 
-light-locker@!X86
-light-locker-settings@!X86
 
 
 #samba
@@ -38,7 +36,7 @@ xfwm4-themes
 orage
 xfce4-screenshooter
 xfce4-clipman-plugin
-xfce4-cpufreq-plugin@!riscv64
+xfce4-cpufreq-plugin
 #xfce4-globalmenu-plugin
 xfce4-xkb-plugin
 xfce4-timer-plugin

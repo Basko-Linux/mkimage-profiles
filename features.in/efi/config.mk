@@ -18,7 +18,6 @@ ifeq (distro,$(IMAGE_CLASS))
 	@$(call add,STAGE1_KCONFIG,EFI EFI_PARTITION EFIVAR_FS)
 	@$(call add,EFI_BOOTARGS,$$(STAGE2_BOOTARGS))
 ifeq (x86_64,$(ARCH))
-	@$(call add,RESCUE_PACKAGES,refind $$(EFI_SHELL) $$(EFI_BOOTLOADER))
 	@$(call add,THE_PACKAGES,$$(EFI_SHELL))
 endif
 endif
@@ -73,7 +72,7 @@ endif
 # copy devicetree for default kernel on ESP partition
 use/efi/dtb: use/efi; @:
 ifeq (distro,$(IMAGE_CLASS))
-ifneq (,$(filter-out $(aarch64 riscv64),$(ARCH)))
+ifeq (,$(filter-out aarch64 riscv64,$(ARCH)))
 	@$(call set,GLOBAL_COPY_DTB,1)
 	@$(call add,EFI_FILES_REPLACE,dtb)
 endif

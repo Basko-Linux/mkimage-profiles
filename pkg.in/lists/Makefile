@@ -1,7 +1,6 @@
 # step 3: copy package lists referenced in distro configuration
 #         (and only those!) over to $(BUILDDIR)
-
-ifndef BUILDDIR
+ifeq (,$(BUILDDIR))
 pkgdups:
 	@find -type f ! -name README ! -name Makefile \
 	| grep -v '~$$' \
@@ -27,7 +26,7 @@ copy-lists:
 	@echo $(sort $(foreach V, \
 		$(filter %_LISTS,$(.VARIABLES)), \
 		$(if $(filter environment% file,$(origin $V)),$($V)))) \
-	|xargs -r -- cp --parents -at $(TARGET) --; \
+	|xargs -r -- cp --parents -at $(TARGET) -- || exit 1; \
 	find $(TARGET) -name 'README' -delete -o -name 'Makefile' -delete
 
 save_packages_to_lists:
@@ -46,7 +45,7 @@ check-lists:
 copy-groups: PKGDIR = ..
 copy-groups:
 	@echo $(sort $(call groups2lists)) \
-	| xargs -r -- cp --parents -at $(TARGET) --
+	| xargs -r -- cp --parents -at $(TARGET) -- || exit 1
 
 grep-archdep:
 	@find $(TARGET) -type f \

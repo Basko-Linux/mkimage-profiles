@@ -26,7 +26,8 @@ mixin/kworkstation-common-deps: \
 	use/stage2/ata use/stage2/fs use/stage2/hid use/stage2/md \
 	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
 	use/stage2/rtc use/stage2/sbc use/stage2/scsi use/stage2/usb \
-	+net-eth +wireless +pulse +plymouth +systemd-optimal +wireless +vmguest +efi +nm
+	+net-eth +wireless +pulse +plymouth +systemd-optimal +wireless +vmguest +efi +nm \
+	use/stage2/kms/nvidia
 
 mixin/kworkstation-common-opts:
 	@$(call set,BRANDING,xalt-kworkstation)
@@ -46,8 +47,11 @@ endif
 	@$(call add,THE_PACKAGES,etcnet-defaults-desktop)
 	@$(call add,THE_PACKAGES,btrfs-progs)
 	@$(call set,INSTALL2_FONTS,fonts-ttf-google-croscore-arimo)
-	@$(call set,LIVECD_FONTS,fonts-ttf-dejavu)
+	@$(call set,LIVECD_FONTS,fonts-ttf-google-noto-sans)
 	@$(call add,THE_PACKAGES,fonts-ttf-dejavu)
+	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-sans)
+	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-serif)
+	@$(call add,THE_PACKAGES,fonts-ttf-google-noto-sans-mono)
 	@$(call add,THE_PACKAGES,fonts-ttf-google-droid-sans)
 	@$(call add,THE_PACKAGES,fonts-ttf-google-droid-serif)
 	@$(call add,THE_PACKAGES,fonts-ttf-google-droid-sans-mono)
@@ -64,6 +68,7 @@ endif
 	@$(call add,THE_LISTS,tagged/xorg+misc)
 	@$(call add,CONTROL,xdg-user-dirs:enabled)
 	@$(call add,CONTROL,fusermount:wheelonly)
+	@$(call add,CONTROL,libnss-role:enabled)
 	@$(call add,SERVICES_ENABLE,smb)
 	@$(call add,SERVICES_ENABLE,nmb)
 	@$(call add,SERVICES_ENABLE,postfix)
@@ -93,14 +98,15 @@ endif
 	@$(call add,SERVICES_ENABLE,snapd.socket)
 	@$(call add,CLEANUP_BASE_PACKAGES,'libwbclient-sssd')
 	@$(call add,CLEANUP_PACKAGES,'^kernel-modules-drm-nouveau.*')
+	@$(call add,CLEANUP_PACKAGES,'xterm')
 	@$(call set,META_VOL_SET,ALT)
 	@$(call set,META_PUBLISHER,BaseALT Ltd)
-	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) $(ARCH))
+	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS))
 	@$(call set,META_APP_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) $(ARCH) $(shell date +%F))
 
 mixin/kworkstation-install-deps: \
 	distro/.installer mixin/desktop-installer \
-	use/install2/suspend use/install2/net use/install2 use/install2/stage3 \
+	use/install2/suspend use/install2/net use/install2 use/install2/stage3 use/install2/vnc \
 	use/install2/vmguest \
 	use/stage2/net-install \
 	use/grub/localboot_bios.cfg \
@@ -129,6 +135,8 @@ mixin/kworkstation-install-opts:
 	@$(call add,INSTALL2_PACKAGES,installer-feature-sddm-setup)
 	@$(call add,INSTALL2_PACKAGES,installer-feature-packagekit-setup)
 	@$(call add,INSTALL2_PACKAGES,installer-feature-xprofile-clear)
+	@$(call add,INSTALL2_PACKAGES,installer-feature-systemd-oomd)
+	@$(call add,INSTALL2_PACKAGES,installer-feature-webterminal-setup)
 	@$(call add,INSTALL2_PACKAGES,apt-scripts-nvidia)
 	@$(call add,INSTALL2_PACKAGES,volumes-profile-kdesktop)
 	@$(call add,INSTALL2_PACKAGES,udev-rules-ioschedulers)
@@ -147,7 +155,8 @@ mixin/kworkstation-install-opts:
 	@$(call add,LIVE_LISTS,$(call tags,base rescue))
 	@$(call add,LIVE_LISTS,$(call tags,rescue fs))
 	@$(call add,LIVE_LISTS,$(call tags,rescue live))
-	@$(call add,LIVE_LISTS,$(call tags,rescue x11 !extra))
+	@$(call add,LIVE_LISTS,$(call tags,rescue x11))
+	@$(call add,LIVE_LISTS,$(call tags,rescue extra))
 	@$(call add,LIVE_LISTS,$(call tags,rescue crypto))
 	@$(call add,LIVE_LISTS,sound/pulseaudio)
 	@$(call add,LIVE_LISTS,kworkstation/live-rescue)
@@ -157,7 +166,7 @@ mixin/kworkstation-install-opts:
 	@$(call add,SERVICES_ENABLE,sshd)
 
 mixin/kworkstation-live-deps: \
-	distro/.base use/rescue/base \
+	distro/.base use/rescue \
 	use/x11/xorg use/x11-autostart \
 	use/live/no-cleanup \
 	use/grub/live_rw.cfg \
@@ -183,7 +192,7 @@ mixin/kworkstation-live-opts:
 	@$(call add,SERVICES_DISABLE,sshd)
 	@$(call add,CLEANUP_LIVE_PACKAGES,'flatpak')
 	@$(call add,CLEANUP_LIVE_PACKAGES,'snapd')
-	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) Live $(ARCH))
+	@$(call set,META_VOL_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) Live)
 	@$(call set,META_APP_ID,ALT Workstation K $(DISTRO_VERSION)$(STATUS) Live $(ARCH) $(shell date +%F))
 
 distro/kworkstation-install: \
@@ -191,10 +200,11 @@ distro/kworkstation-install: \
 	kde5 \
 	games \
 	emulators remote-desktop \
-	printing scanning \
+	printing publishing scanning \
 	video-editing sound-editing graphics-editing \
+	z00-add-3dparty 3dparty-flatpak 3dparty-snap \
 	z01-add-clients clients-ad clients-ipa clients-backup clients-cloud clients-monitor \
-	z02-add-additional add-oem add-tablet add-webterminal)
+	z02-add-additional add-oem add-tablet add-webterminal add-no4k-screen)
 
 distro/kworkstation-install: \
 	mixin/kworkstation-install-deps \

@@ -2,6 +2,7 @@ use/dev: use/control
 	@$(call add_feature)
 	@$(call add,THE_PACKAGES,git-core hasher gear)
 	@$(call add,CONTROL,pam_mktemp:enabled)
+	@$(call add,DEFAULT_SERVICES_ENABLE,hasher-privd)
 
 # use/dev intentionally missing
 use/dev/repo: use/repo/main
@@ -30,7 +31,7 @@ ifeq (,$(filter-out x86_64 ,$(ARCH)))
 endif
 
 use/dev/builder/full: use/dev use/dev/builder/live use/dev/repo
-ifdef BIGRAM
+ifneq (,$(BIGRAM))
 	@$(call set,KFLAVOURS,$(BIGRAM))
 endif
 	@$(call add,THE_LISTS,$(call tags,server extra))

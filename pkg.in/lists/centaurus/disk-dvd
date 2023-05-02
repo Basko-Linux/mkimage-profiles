@@ -20,6 +20,8 @@ kernel-doc-std
 
 c-icap
 virt-viewer
+virt-install
+virt-manager
 
 b43-fwcutter
 
@@ -67,12 +69,17 @@ lsb@X86
 python3-module-Crypto
 
 postgresql-jdbc
-#postgresql10-1C-server
+postgresql14-1C-server
+postgresql14-1C-contrib
 
 mariadb-server
+mariadb@META
 
-php7-soap
-php7-calendar
+php8.0-soap
+php8.0-calendar
+php8.0-sockets
+php8.0-pgsql
+php8.0-ldap
 
 xprobe2
 
@@ -95,3 +102,15 @@ urbackup-server
 
 alt-csp-cryptopro
 inxi hwinfo htop iotop
+
+sssd-ldap
+tigervnc-server
+
+zabbix-server-pgsql
+admx-msi-setup
+state-change-notify-postfix
+seavgabios
+haproxy
+keepalived
+eepm
+eepm-yum

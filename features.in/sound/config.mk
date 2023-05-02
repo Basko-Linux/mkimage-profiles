@@ -1,3 +1,4 @@
++pipewire: use/sound/pipewire; @:
 +pulse: use/sound/pulse; @:
 +alsa:  use/sound/alsa; @:
 
@@ -14,3 +15,13 @@ use/sound/alsa: use/sound
 # PulseAudio (useful for per-app levels, dynamic devices and networked sound)
 use/sound/pulse: use/sound
 	@$(call set,THE_SOUND,sound/pulseaudio)
+
+use/sound/pipewire: use/sound
+	@$(call set,THE_SOUND,sound/pipewire)
+	@$(call add,DEFAULT_SYSTEMD_USER_SERVICES_ENABLE,pipewire pipewire-pulse)
+ifeq (sisyphus,$(BRANCH))
+	@$(call add,THE_PACKAGES,wireplumber)
+	@$(call add,DEFAULT_SYSTEMD_USER_SERVICES_ENABLE,wireplumber)
+else
+	@$(call add,DEFAULT_SYSTEMD_USER_SERVICES_ENABLE,pipewire-media-session)
+endif

@@ -1,5 +1,5 @@
 Name: mkimage-profiles
-Version: 1.4.32
+Version: 1.5.4
 Release: alt1
 
 Summary: ALT based distribution metaprofile
@@ -19,6 +19,7 @@ Requires: mkimage >= 0.2.5
 Requires: mkimage-preinstall
 
 # Recommends: graphviz qemu-img
+# Recommends: isomd5sum
 
 %define mpdir %_datadir/%name
 %add_findreq_skiplist %mpdir/*.in/*
@@ -128,6 +129,128 @@ mv %buildroot%mpdir/doc/mkimage-profiles.7 %buildroot%_man7dir/
 %endif
 
 %changelog
+* Mon Apr 17 2023 Anton Midyukov <antohami@altlinux.org> 1.5.4-alt1
+- e2k: fix scripts 20-e2k-boot
+- e2k: add live-install feature support
+- x11-autologin: rename script 40-x11-autologin -> 60-x11-autologin
+- l10n: set LANG to /etc/sysconfig/i18n, /etc/locale.conf
+- deflogin: add variable DEFAULT_SESSION (for AccountsService)
+- tty: Allow any tty* variants, allow override TTYDEV, TTYRATE
+- alternatives: initial feature
+- live-install: set xterm as alternative to xvt (See ALT bug 45574)
+- install2: cleanup udev/rules.d/64-md-raid-assembly.rules
+- grub, syslinux: clean lowmem for menu item Install
+- base+rescue: add open-iscsi (Closes: 45792)
+- stage2: fix use/stage2/kms/nvidia (See ALT bug 31971)
+- kworkstation.mk: fix nvidia support in live (Closes: 31971)
+- kworkstation: add latest commits from zerg@
+- tar2fs: grub-install --uefi-secureboot for all platforms
+- initrd-bootchain: add kbd initrd feature
+- install2: do not cleanup wi-fi drivers
+
+* Mon Mar 20 2023 Anton Midyukov <antohami@altlinux.org> 1.5.3-alt1
+- services: fix DEFAULT_SYSTEMD_USER_SERVICES_{DISABLE,ENABLE} support
+- Initial feature live-install
+- regular.mk: installation from live image by classic installer
+- grub: add submenu for install live over network
+- stage2: add option '--no-hardliks' to mksquashfs (Closes: 45329)
+- initrd-{bootchain,propagator}: save initrd.mk, make-initrd to .disk/
+- stage2,initrd-*: fix adding udev rules for named network interfaces
+- mediacheck: check available implantisomd5 command
+- install2: add mdadm to altinst
+- features.in: drop armh-skit
+- Include README of features to documentation; fix syntax & links in them
+
+* Wed Feb 22 2023 Anton Midyukov <antohami@altlinux.org> 1.5.2-alt1
+- wireless: removed crda, added firmware-wireless-regdb for all arch
+  (thanks iv@)
+- update package lists for riscv64 support (thanks iv@)
+- init: drop stage2/image-scripts.d/91-systemd
+- features.in: replace 50-bootargs script from bootloader to build-vm
+- plymouth: drop use/plymouth/vm, cleanup
+- stage2: drop 90-cleanup-drm script
+- stage2: drop 50-udev script
+- desktop+live: drop installer-feature-runlevel5-stage3
+- live: do'nt mkdir /live.hooks
+- x11-autologin: do nothing, if user altlinux does not exist
+- init: drop live/image-scripts.d/50-var-run-fix (fix clash with rootfs script)
+- init: not fix tmpfiles.d/*.conf
+- efi: don't add refind, $$(EFI_SHELL), $$(EFI_BOOTLOADER) to rescue
+- deflogin: create live user on first run
+- dev: do not configure altlinux user in live (51-hasher)
+- rescue: do'nt enable online repo
+- grub, l10n: available only languages from $LOCALES in grub and installer
+  (Closes: 45290)
+- workstation, server, server-v: add latest commits
+
+* Thu Jan 05 2023 Anton Midyukov <antohami@altlinux.org> 1.5.1-alt1
+- efi: fix condition for use/efi/dtb
+- mixin.mk: exclude gnome3-regular metapackage from regular-gnome3 target
+- syslinux: try SYSLINUX_UI to none
+- initrd-bootchain: use method disk for local boot
+- net-ssh: Use two-pass method to install an authorized key for root (thanks
+  manowar@)
+- net: Allow to configure hostname via TARGET_HOSTNAME (thanks manowar@)
+
+* Fri Dec 30 2022 Anton Midyukov <antohami@altlinux.org> 1.5.0-alt1
+- Updating lists for riscv64 (thanks iv@)
+- check conditions of make for equality of variables with an empty value
+- Set variable BRANCH, if not defined or empty; show $BRANCH
+- Add STDOUT option to output log to stdout
+- reports.mk: archive report with REPORT=2
+- profile.mk: do not cleanup BUILDDIR, which is a symlink
+- use/dev: Fix: Enable hasher-privd by default (thanks manowar@)
+- regular.mk: set KFLAVOUR un-def for jeos in Sisyphus
+- regular.mk: add drm kernel moules + firmware to initrd for all
+- regular.mk: net-install is available for alles BRANCH
+- grub: drop $linux_suffix in *.cfg
+- grub: add ip=dhcp to bootargs in 88netinstall.cfg
+- sound: use wireplumber instead pipewire-media-session for pipewire in
+  Sisyphus (request by aris@)
+- uboot: add u-boot-rpi3 to list
+- image.in/functions.mk: protect the code from spontaneous execution
+  (Closes: 44561)
+- regular.mk: add use/efi/dtb
+- education: add latest commits (from cas@)
+- workstation: add latest commits (from sem@)
+- alt-server: add latest commits (from jqt4)
+- slinux: Add pam_gnome-keyring (from jqt4)
+
+* Fri Dec 02 2022 Anton Midyukov <antohami@altlinux.org> 1.4.35-alt1
+- alt-workstation-cloud: Use NetworkManager (from obirvalger@)
+- install2: Don't cleanup /lib/modules/*/kernel/arch (from jqt4@)
+- alt-server: add commits from jqt4@
+- kworkstation: add commitd from zerg@
+- grub: drop kazakh language support
+- efi: add workaround for p10 branch to fix booting from a flash drive
+- grub: do not copy locale, if not used gfxterm
+
+* Mon Oct 10 2022 Anton Midyukov <antohami@altlinux.org> 1.4.34-alt1
+- regular.mk: add to jeos 'xdriver=vesa' for Legacy, 'xdriver=fbdev' for EFI
+- live: add use/live/runapp; live.mk: initial distro/live-blender with runapp
+  (thanks mike@)
+- build-ve: fix /run and /run/lock for ve images (thanks obirvalger@)
+- rescue: add gostsum, use alt repo
+- regular: use alt repo
+- services: add logind services, add defaults for SYSTEMD services
+- sound: add pipewire support
+- x11: replace pulseaudio with pipewire for gnome3
+- regular.mk: add gnome3-install
+- alt-server: add commits from jqt4@
+- server-v: add commits from andy@
+- education: add commits from cas@
+- workstation: add commits from sem@
+- slinux: change light-locker to xfce4-screensaver (from jqt4@)
+
+* Fri Sep 02 2022 Anton Midyukov <antohami@altlinux.org> 1.4.33-alt1
+- grub: add nosplash for vnc install items
+- base+rescue: add the required minimum applications for rescue
+- firmware: add firmware-ast_dp501 to use/firmware/server
+- Save rpm and srpm lists for chroots of subprofiles and main repo
+- realtime.mk: add kernel-headers and devel packages for linuxcnc
+- regular.mk: remove drm from jeos, enable nomodeset for jeos
+- kworkstation: add commits from zerg@
+
 * Mon Jul 25 2022 Anton Midyukov <antohami@altlinux.org> 1.4.32-alt1
 - Add commits from zerg@ for kworkstation
 - arm-rpi4: use/arm-rpi4/kernel available for aarch64 only

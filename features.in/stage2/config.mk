@@ -8,9 +8,7 @@ use/stage2:: sub/stage1
 	@$(call set,GLOBAL_HSH_PROC,1)
 
 ifneq (,$(filter-out e2k%,$(ARCH)))
-ifeq (,$(BRANCH))
-use/stage2:: use/initrd-bootchain; @:
-else ifneq (,$(filter-out p10 p9 p8 p7 p6 p5 с%,$(BRANCH)))
+ifeq (sisyphus,$(BRANCH))
 use/stage2:: use/initrd-bootchain; @:
 else
 use/stage2:: use/initrd-propagator; @:
@@ -35,8 +33,8 @@ endif
 
 use/stage2/kms: use/stage2/drm use/drm/stage2/full; @:
 
-use/stage2/kms/nvidia: use/stage2/kms \
-	use/drm/stage2/nvidia; @:
+# initrd without nouveau; see ALT bug 31971
+use/stage2/kms/nvidia: use/stage2/drm use/drm/stage2/nvidia; @:
 
 # install mount.cifs to stage1
 # NB: there's builtin nfsmount there, no reason for nfs-utils

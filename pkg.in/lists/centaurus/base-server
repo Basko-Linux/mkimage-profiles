@@ -59,6 +59,7 @@ reiserfsprogs
 jfsutils
 dosfstools
 multipath-tools
+btrfs-progs
 
 # scsi
 sdparm
@@ -68,6 +69,7 @@ sg3_utils
 openssh-server
 openssh-blacklist
 postfix
+postfix-tls
 openntpd
 irqbalance
 cgroup
@@ -111,6 +113,7 @@ expect
 
 system-report
 
-eepm
-
 glibc-timezones
+
+alt-issue-server
+color-prompt-and-man
