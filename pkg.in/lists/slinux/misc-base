@@ -110,6 +110,8 @@ pulseaudio-utils
 pavucontrol
 alsa-plugins-pulse
 
+onboard
+
 # gstreamer plugins
 gst-plugins-base1.0
 gst-plugins-good1.0
