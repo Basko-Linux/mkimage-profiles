@@ -1,0 +1,61 @@
+# connectivity
+gnome-calls
+gnome-contacts
+chatty
+telegram-desktop@!riscv64
+
+# terminal
+gnome-console
+
+# web, mail
+chromium@!riscv64
+firefox
+geary
+
+# multimedia
+megapixels
+snapshot
+cheese
+mpv
+totem
+clapper
+amberol
+lollypop
+shortwave
+
+# readers
+evince
+foliate
+
+# file transfer
+warp@!riscv64
+
+# password manager
+secrets
+
+# emoji (see also https://bugzilla.altlinux.org/46471)
+fonts-ttf-google-noto-emoji-color
+
+# CJK fonts
+fonts-ttf-lxgw-wenkai
+
+# Dictaphone
+gnome-sound-recorder
+
+# misc
+gnome-calculator
+gnome-clocks
+gnome-calendar
+gnome-characters
+gnome-compass
+gnome-maps
+gnome-weather
+grim
+wallpapers-mobile
+# libadwaita theme ported to gtk3
+# $ gsettings get org.gnome.desktop.interface gtk-theme
+# 'adw-gtk3'
+gtk3-theme-adw-gtk3
+
+# need to test
+gnome-qr-decoder

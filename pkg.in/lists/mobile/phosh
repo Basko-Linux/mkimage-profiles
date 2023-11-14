@@ -1,0 +1,33 @@
+# core
+phosh
+xdg-desktop-portal-gtk
+xdg-desktop-portal-gnome
+xorg-xwayland
+qt5-wayland
+qt6-wayland
+qt6-svg
+qt6-imageformats
+bluez
+
+# base applications
+gnome-control-center
+phosh-mobile-settings
+alt-tweaks
+gnome-software
+
+# extra applications
+phosh-antispam
+
+# file manager
+portfolio
+tracker3
+
+# screen recording for wlroots-based compositors
+wf-recorder
+
+# base libraries
+at-spi2-core
+libat-spi2-core-gir
+libgtk+3-gir
+libgtk4-gir
+libtelepathy-mission-control

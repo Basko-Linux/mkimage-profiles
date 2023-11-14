@@ -12,10 +12,10 @@ man-pages
 util-linux
 eject
 binutils
+usbutils
 
 # Package management
 apt-repo
-aptitude
 
 # Disk utils
 dc3dd
@@ -26,7 +26,7 @@ hdparm
 lsblk
 lsmount
 lvm2
-mdadm-tool
+mdadm
 open-iscsi
 photorec
 scalpel

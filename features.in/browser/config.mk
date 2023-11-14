@@ -4,15 +4,14 @@ use/browser:
 	@$(call try,THE_BROWSER,elinks)	# X11-less fallback
 
 # amend as neccessary; firefox is treated separately due to its flavours
-BROWSERS_i586 = seamonkey netsurf epiphany falkon otter-browser \
-		elinks links2
-BROWSERS_x86_64 := $(BROWSERS_i586) chromium
-BROWSERS_ppc64el = netsurf epiphany falkon otter-browser elinks links2
-BROWSERS_aarch64 = chromium netsurf epiphany falkon otter-browser elinks links2
-BROWSERS_armh = netsurf epiphany falkon otter-browser elinks links2
-BROWSERS_mipsel = seamonkey netsurf epiphany falkon otter-browser \
-		  elinks links2
+BROWSERS_i586 = netsurf epiphany falkon elinks links2
+BROWSERS_x86_64 := $(BROWSERS_i586) chromium seamonkey
+BROWSERS_ppc64el = netsurf epiphany falkon elinks links2
+BROWSERS_aarch64 = chromium netsurf epiphany falkon elinks links2
+BROWSERS_armh = netsurf epiphany falkon elinks links2
+BROWSERS_mipsel = seamonkey netsurf epiphany falkon elinks links2
 BROWSERS_riscv64 = epiphany midori netsurf elinks
+BROWSERS_loongarch64 = epiphany midori netsurf elinks
 BROWSERS_e2k = netsurf elinks links2
 BROWSERS_e2kv4 := $(BROWSERS_e2k)
 BROWSERS := $(BROWSERS_$(ARCH))
@@ -24,7 +23,7 @@ ifneq (,$(filter-out x86_64 aarch64,$(ARCH)))
 use/browser/chromium: use/browser/firefox use/browser/firefox/esr; @:
 endif
 
-ifeq (,$(filter-out e2k%,$(ARCH)))
+ifeq (,$(filter-out e2k% riscv64 loongarch64,$(ARCH)))
 use/browser/falkon: use/browser/firefox use/browser/firefox/esr; @:
 endif
 
@@ -44,6 +43,3 @@ use/browser/firefox/esr: ; @:
 ifneq (,$(filter-out riscv64,$(ARCH)))
 	@$(call set,FX_FLAVOUR,-esr)
 endif
-
-use/browser/firefox/live: use/browser/firefox
-	@$(call add,THE_BROWSER,livecd-firefox)

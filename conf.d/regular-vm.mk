@@ -14,8 +14,12 @@ vm/regular-systemd: vm/systemd-net use/vmguest/kvm use/tty/S0 \
 mixin/vm-archdep:: use/auto-resize; @:
 
 ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
-mixin/vm-archdep::
+mixin/vm-archdep:: +efi
+ifeq (,$(filter-out p10,$(BRANCH)))
+	@$(call set,KFLAVOURS,un-def)
+else
 	@$(call set,KFLAVOURS,std-def un-def)
+endif
 endif
 
 ifeq (,$(filter-out armh,$(ARCH)))
@@ -38,7 +42,7 @@ mixin/vm-archdep:: use/bootloader/uboot
 	@$(call set,KFLAVOURS,un-def)
 endif
 
-mixin/vm-archdep-x11: mixin/vm-archdep +vmguest; @:
+mixin/vm-archdep-x11: mixin/vm-archdep use/vmguest/kvm/x11; @:
 
 mixin/regular-vm-base: use/firmware use/ntp/chrony use/repo \
 	use/services/lvm2-disable use/wireless
@@ -64,7 +68,7 @@ vm/.regular-desktop: vm/systemd mixin/regular-vm-x11 \
 	@$(call add,THE_PACKAGES,bluez)
 	@$(call add,THE_PACKAGES,glmark2 glmark2-es2)
 	@$(call add,DEFAULT_SERVICES_ENABLE,bluetoothd)
-	@$(call try,VM_SIZE,6442450944)
+	@$(call try,VM_SIZE,8589934592)
 
 vm/.regular-desktop-sysv: vm/bare mixin/regular-vm-x11 use/x11/gdm2.20 \
 	use/init/sysv/polkit +power; @:
@@ -78,7 +82,7 @@ vm/regular-jeos-systemd: vm/systemd \
 	mixin/regular-vm-jeos mixin/vm-archdep
 	@$(call add,THE_PACKAGES,glibc-locales)
 	@$(call add,THE_PACKAGES,systemd-settings-disable-kill-user-processes)
-	@$(call try,VM_SIZE,3221225472)
+	@$(call try,VM_SIZE,4294967296)
 
 vm/regular-jeos-sysv: vm/bare mixin/regular-vm-jeos mixin/vm-archdep +power; @:
 
@@ -92,8 +96,7 @@ vm/regular-cinnamon: vm/.regular-gtk mixin/regular-cinnamon mixin/vm-archdep-x11
 
 vm/regular-deepin: vm/.regular-gtk mixin/regular-deepin mixin/vm-archdep-x11; @:
 
-vm/regular-gnome3: vm/.regular-gtk mixin/regular-gnome3 mixin/vm-archdep-x11
-	@$(call set,VM_SIZE,8589934592)
+vm/regular-gnome: vm/.regular-gtk mixin/regular-gnome mixin/vm-archdep-x11; @:
 
 vm/regular-lxde: vm/.regular-gtk mixin/regular-lxde mixin/vm-archdep-x11; @:
 
@@ -107,8 +110,7 @@ ifeq (,$(filter-out mipsel riscv64,$(ARCH)))
 	@$(call add,THE_PACKAGES,xfce-reduced-resource)
 endif
 
-vm/regular-kde5: vm/.regular-gtk mixin/regular-kde5 mixin/vm-archdep-x11
-	@$(call set,VM_SIZE,7516192768)
+vm/regular-kde5: vm/.regular-gtk mixin/regular-kde5 mixin/vm-archdep-x11; @:
 
 vm/regular-lxqt: vm/.regular-gtk mixin/regular-lxqt mixin/vm-archdep-x11; @:
 

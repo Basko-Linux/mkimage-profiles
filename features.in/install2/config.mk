@@ -6,7 +6,7 @@ use/install2: use/stage2 sub/stage2@install2 use/metadata \
 	use/cleanup/installer use/install2/autoinstall use/grub/install2.cfg
 	@$(call add_feature)
 	@$(call add,INSTALL2_PACKAGES,installer-common-stage2)
-	@$(call try,INSTALLER,altlinux-generic)	# might be replaced later
+	@$(call try,INSTALLER,regular)	# might be replaced later
 	@$(call add,INSTALL2_PACKAGES,installer-distro-$$(INSTALLER)-stage2)
 	@$(call add,INSTALL2_PACKAGES,branding-$$(BRANDING)-alterator)
 	@$(call add,BASE_PACKAGES,branding-$$(BRANDING)-release)
@@ -29,6 +29,11 @@ use/install2/full: \
 	use/syslinux/ui/menu use/bootloader
 	@$(call add,INSTALL2_PACKAGES,xorg-drv-synaptics)
 	@$(call add,INSTALL2_PACKAGES,xorg-drv-libinput)
+
+use/install2/oem: use/install2
+	@$(call add,INSTALL2_PACKAGES,installer-feature-oem-stage2)
+	@$(call add,MAIN_PACKAGES,alterator-setup)
+	@$(call add,MAIN_PACKAGES,installer-feature-alterator-setup-stage2)
 
 use/install2/lvm: use/install2
 	@$(call add,INSTALL2_PACKAGES,lvm2)
@@ -145,11 +150,6 @@ use/install2/cleanup/dri:
 	@$(call set,INSTALL2_CLEANUP_DRI,yes)
 	@$(call xport,INSTALL2_CLEANUP_DRI)
 
-# conflicts with luks feature
-use/install2/cleanup/crypto:
-	@$(call add,INSTALL2_CLEANUP_PACKAGES,gnupg)
-	@$(call add,INSTALL2_CLEANUP_PACKAGES,libgnutls*)
-
 # leave only cirrus, fbdev, qxl, vesa in vm-targeted images
 use/install2/cleanup/x11-hwdrivers:
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,xorg-drv-ati xorg-drv-intel)
@@ -160,7 +160,7 @@ use/install2/cleanup/x11-hwdrivers:
 
 # massive purge of anything not critical to installer boot (l10n included!)
 use/install2/cleanup/everything: use/install2/cleanup/x11-hwdrivers \
-	use/install2/cleanup/vnc use/install2/cleanup/crypto
+	use/install2/cleanup/vnc
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,glibc-locales)
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,libX11-locales alterator-l10n)
 	@$(call add,INSTALL2_CLEANUP_PACKAGES,kbd-data kbd console-scripts)

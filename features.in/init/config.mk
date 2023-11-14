@@ -14,8 +14,7 @@ use/init: use/pkgpriorities
 use/init/sysv: use/init
 	@$(call set,INIT_TYPE,sysvinit)
 	@$(call add,THE_PACKAGES,rsyslog-classic startup)
-	@$(call add,THE_PACKAGES,systemd-utils-standalone)
-	@$(call add,THE_PACKAGES,udev-rule-generator)
+	@$(call add,THE_PACKAGES,udevd-final)
 	@$(call add,THE_PACKAGES,apt-conf-ignore-systemd)
 	@$(call add,DEFAULT_SERVICES_ENABLE,udevd-final)
 	@$(call add,PINNED_PACKAGES,rsyslog-classic)
@@ -34,7 +33,7 @@ use/init/systemd: use/init
 
 use/init/systemd/full: use/init/systemd
 	@$(call add,THE_PACKAGES,chkconfig)
-ifeq (,$(filter-out i586 x86_64,$(ARCH)))
+ifeq (,$(filter-out i586 x86_64 aarch64,$(ARCH)))
 	@$(call add,THE_PACKAGES,vconsole-setup-kludge)
 endif
 

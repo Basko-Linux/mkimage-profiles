@@ -6,7 +6,11 @@ else
 ifeq (,$(filter-out riscv64,$(ARCH)))
 	@$(call try,KFLAVOURS,un-def)
 else
+ifeq (,$(filter-out loongarch64,$(ARCH)))
+	@$(call try,KFLAVOURS,loongarch)
+else
 	@$(call try,KFLAVOURS,std-def)
+endif
 endif
 endif
 	@$(call xport,KFLAVOURS)
@@ -44,6 +48,7 @@ use/kernel/disable-usb-autosuspend:
 
 # for vm targets
 use/kernel/initrd-setup: use/kernel
+	@$(call add,BASE_PACKAGES,make-initrd)
 	@$(call try,VM_FSTYPE,ext4)
 	@$(call add,VM_INITRDMODULES,$$(VM_FSTYPE))
 	@$(call add,VM_INITRDMODULES,ahci.ko ahci_platform.ko sd_mod.ko)
@@ -57,6 +62,7 @@ use/kernel/initrd-setup: use/kernel
 	@$(call add,VM_INITRDMODULES,virtio_scsi.ko virtio_blk.ko virtio-rng virtio_net.ko virtio-gpu.ko)
 	@$(call add,VM_INITRDMODULES,virtio-mmio.ko virtio_pci.ko virtio_console.ko virtio_input.ko)
 	@$(call add,VM_INITRDMODULES,drivers/video/fbdev)
+	@$(call add,VM_INITRDMODULES,crc32_generic.ko)
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call add,VM_INITRDMODULES,ata_piix.ko)
 endif

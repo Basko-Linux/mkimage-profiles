@@ -20,6 +20,8 @@ disktype
 #evms-ncurses
 # fio pulls in a bunch of huge libraries down to libicu
 #fio
+f3
+fdutils@X86
 gpart
 hddtemp
 idle3-tools
@@ -138,7 +140,7 @@ cifs-utils
 curl
 davfs2
 dhcpdump
-dsniff
+#dsniff
 elinks
 exabgp
 fping
@@ -215,6 +217,7 @@ chntpw@X86
 hivex@X86
 scrounge-ntfs@X86
 wabread@X86
+libldm@X86
 
 # Mobile
 android-tools@!E2K,riscv64

@@ -77,7 +77,27 @@ if [ "$BOOTLOADER" == grub-efi -o "$BOOTTYPE" == EFI ]; then
 	EFIPART="1"
 	EFIPARTSIZEM="256"
 	EFIPARTFSTYPE="fat"
-	ROOTPART="2"
+	if [ "$ARCH" = x86_64 ]; then
+		BIOSPART="2"
+		ROOTPART="3"
+	else
+		ROOTPART="2"
+	fi
+fi
+
+# tested to work: ext[234], jfs
+# NB: xfs doesn't have a spare sector for the bootloader
+ROOTFSTYPE="${4:-ext4}"
+
+if [ -f "$ROOTFS/boot/extlinux/extlinux.conf" ] && [ "$ROOTFSTYPE" != ext4 ]; then
+	if [ -n "$EFIPART" ]; then
+		BOOTPART="2"
+		ROOTPART="3"
+	else
+		BOOTPART="1"
+		ROOTPART="2"
+	fi
+	BOOTFSTYPE="ext4"
 fi
 
 PARTTABLE="$7"
@@ -126,6 +146,25 @@ mkpart() {
 	parting mkpart primary "$CUR_FS" "$start"MiB "$end"
 }
 
+create_inner_grub_cfg() {
+	local boot_path boot_uuid cfg_path
+	cfg_path=$1
+	[ -n "$cfg_path" ] || return 1
+	if [ -n "$BOOTUUID" ]; then
+		boot_uuid="$BOOTUUID"
+		boot_path=grub
+	else
+		boot_uuid="$ROOTUUID"
+		boot_path=boot/grub
+	fi
+	[ -n "$boot_uuid" ] || return 1
+	cat >"$cfg_path" <<-GRUB_EOF
+	search.fs_uuid $boot_uuid root
+	set prefix=(\$root)/$boot_path
+	configfile \$prefix/grub.cfg
+	GRUB_EOF
+}
+
 # a tarball containing chroot with a kernel
 TAR="$1"
 [ -s "$TAR" ] || fatal "source tarball doesn't really exist"
@@ -138,19 +177,20 @@ IMG="$2"
 ROOTSIZE="$3"
 [ -n "$ROOTSIZE" -a "$ROOTSIZE" != 0 ] || unset ROOTSIZE
 
+BOOTSIZE="$9"
+[ -n "$BOOTSIZE" -a "$BOOTSIZE" != 0 ] || unset BOOTSIZE
+
 # image size in bytes
 TARSIZE="$(stat -Lc %s "$TAR")"
 # /boot size in that tarball
-BOOTSIZE="$(boot_size "$TAR")"
-DEFSIZE="$(($SIZE_FACTOR * ($TARSIZE - $BOOTSIZE)))"	# (exact sizes)
+BOOTDEFSIZE="$(boot_size "$TAR")"
+DEFSIZE="$(($SIZE_FACTOR * ($TARSIZE - ${BOOTSIZE:-$BOOTDEFSIZE})))"	# (exact sizes)
 ROOTSIZE="$((${ROOTSIZE:-$DEFSIZE} + $MB - 1))"	# for ceil rounding to MB
 # image and /boot sizes in megabytes
 ROOTSIZEM="$(($ROOTSIZE / $MB))"
-BOOTSIZEM="$((($SIZE_FACTOR * $BOOT_SIZE_FACTOR * $BOOTSIZE + $MB - 1) / $MB))"
-
-# tested to work: ext[234], jfs
-# NB: xfs doesn't have a spare sector for the bootloader
-ROOTFSTYPE="${4:-ext4}"
+BOOTDEFSIZE="$(($SIZE_FACTOR * $BOOT_SIZE_FACTOR * $BOOTDEFSIZE))"
+BOOTSIZE="$((${BOOTSIZE:-$BOOTDEFSIZE} + $MB - 1))"	# for ceil rounding to MB
+BOOTSIZEM="$(($BOOTSIZE / $MB))"
 
 # single root partition hardwired so far,
 # add another image for home/data/swap if needed
@@ -201,7 +241,7 @@ trap exit_handler EXIT ERR
 
 # prepare disk image and a filesystem inside it
 rm -f -- "$IMG"
-OFFSET="$(($CUR_BOUNDARY + $EFIPARTSIZEM + $BOOTLOADERPARTSIZEM + $BOOTSIZEM + $ROOTSIZEM - 1))"
+OFFSET="$(($CUR_BOUNDARY + $EFIPARTSIZEM + $BOOTLOADERPARTSIZEM + $BOOTSIZEM + ${BIOSPART:+1} + $ROOTSIZEM - 1))"
 dd if=/dev/zero of="$IMG" conv=notrunc bs=$MB count=1 seek="$OFFSET"
 losetup -f "$IMG"
 LOOPDEV=$(losetup -j "$IMG" | cut -f 1 -d ':')
@@ -231,6 +271,12 @@ if [ -n "$EFIPART" ]; then
 	if [ "$PARTTABLE" == gpt ]; then
 		parting set 1 esp on
 	fi
+fi
+
+if [ -n "$BIOSPART" ]; then
+	parting mkpart bios $((CUR_BOUNDARY+1))MiB $(($CUR_BOUNDARY + 2))MiB
+	CUR_BOUNDARY="$(($CUR_BOUNDARY + 1))"
+	parting set "$BIOSPART" bios on
 fi
 
 if [ -n "$BOOTPART" ]; then
@@ -298,7 +344,6 @@ fi
 tar -C "$ROOTFS" --numeric-owner -xf "$TAR"
 for i in /dev /proc /sys; do mount --bind "$i" "$ROOTFS$i"; done
 
-# loop device so lilo could work...
 if grep -qe "[[:space:]]/[[:space:]]" "$ROOTFS/etc/fstab"; then \
 	sed -i "s/LABEL=ROOT/$ROOTDEV/" "$ROOTFS/etc/fstab"
 else
@@ -313,53 +358,10 @@ if [ -n "$EFIPART" ]; then
 	echo "$EFIDEV /boot/efi vfat umask=0,quiet,showexec,iocharset=utf8,codepage=866 1 2" >> "$ROOTFS/etc/fstab"
 fi
 
-# Query ARCH in chroot and redefine arch-dependent variable
-ARCH="$(chroot "$ROOTFS" rpm --eval '%_host_cpu')"
-
-# NB: don't stick BOOTFS here, it has slightly different semantics
-pushd $ROOTFS/boot
-
-# 4.9.76-elbrus-def-alt1.11.1 -> def
-get_label() { echo "${1# *}" | sed -r 's,.*elbrus-([0-9a-z]+)-.*$,\1,'; }
-
-KVERSIONS=
-KVERSIONS="$(chroot "$ROOTFS" rpm -qa 'kernel-image*' \
-            --qf '%{installtime} %{version}-%{name}-%{release}\n' \
-        | sort -n \
-        | cut -f 2 -d ' ' \
-        | sed 's/kernel-image-//')"
-[ -n "$KVERSIONS" ] || fatal "unable to deduce kernel version"
-rm -f .origver
-
 # clean fstab
 sed -i "/LABEL=ROOT/d" "$ROOTFS/etc/fstab"
 # ...target device too
 sed -i "s,$LOOPROOT,$ROOTDEV," "$ROOTFS/etc/fstab"
-
-echo "** KVERSIONS=[$KVERSIONS]" >&2
-
-if [ "`echo $KVERSIONS | wc -w`" = 1 ]; then # 2+ labels
-	echo -e "default=`get_label $KVERSIONS`\n" >> boot.conf
-fi
-
-# FIXME: relies on particular (current) kernel package naming scheme
-for v in $KVERSIONS; do
-	l="`get_label "$v"`"
-	cat >> boot.conf <<EOF
-label=$l
-	partition=0
-	image=/image-$v
-	initrd=/initrd-$v.img
-	cmdline=console=ttyS0,115200 console=tty0 consoleblank=0 hardreset root=UUID=$ROOTUUID
-
-EOF
-done
-
-echo "** start of boot.conf"
-cat boot.conf
-echo "** end of boot.conf"
-
-popd
 
 # Update cmdline.txt for Raspberry Pi
 [ -f "$ROOTFS/boot/efi/cmdline.txt" ] &&
@@ -369,68 +371,62 @@ popd
 if [ -f "$ROOTFS/boot/extlinux/extlinux.conf" ]; then
 	sed -i "s/LABEL=ROOT/$ROOTDEV/g" "$ROOTFS/boot/extlinux/extlinux.conf"
 	if [ "$PARTTABLE" == gpt ]; then
-		parting set "$ROOTPART" legacy_boot on
+		if [ -n "$BOOTPART" ]; then
+			parting set "$BOOTPART" legacy_boot on
+		else
+			parting set "$ROOTPART" legacy_boot on
+		fi
 	fi
 	if [ "$PARTTABLE" == msdos ]; then
-		parting set "$ROOTPART" boot on
+		if [ -n "$BOOTPART" ]; then
+			parting set "$BOOTPART" boot on
+		else
+			parting set "$ROOTPART" boot on
+		fi
 	fi
 fi
 
+# e2k
+if [ -f "$ROOTFS/boot/boot.conf" ]; then
+	sed -i "s/LABEL=ROOT/$ROOTDEV/g" "$ROOTFS/boot/boot.conf"
+fi
+
+# Query ARCH in chroot and redefine arch-dependent variable
+ARCH="$(chroot "$ROOTFS" rpm --eval '%_host_cpu')"
+
 # Setup bootloader
 case "$BOOTLOADER" in
-lilo)
-	# configure and install bootloader
-	REGEXP='^.*: ([0-9]+) cylinders, ([0-9]+) heads, ([0-9]+) sectors/track*$'
-	set -- $(sfdisk -g "$LOOPDEV" | grep -E "$REGEXP" | sed -r "s@$REGEXP@\1 \2 \3@")
-
-	LILO_COMMON="lba32
-delay=1
-vga=0
-image=/boot/vmlinuz
-  initrd=/boot/initrd.img
-  append=\"root=$ROOTDEV rootdelay=3 console=tty1 console=ttyS0,115200n8\"
-  label=linux"
-
-	cat > "$ROOTFS"/etc/lilo-loop.conf <<-EOF
-	boot=$LOOPDEV
-	disk=$LOOPDEV
-	  bios=0x80
-	  cylinders=$1
-	  heads=$2
-	  sectors=$3
-	  partition=$LOOPROOT
-	  start=63
-	$LILO_COMMON
-	EOF
-
-	chroot "$ROOTFS" lilo -C /etc/lilo-loop.conf
-
-	cat > "$ROOTFS"/etc/lilo.conf <<-EOF
-	boot=$BLOCKDEV
-	$LILO_COMMON
-	EOF
-	;;
 grub-efi)
 	echo 'GRUB_DISABLE_OS_PROBER=true' >> "$ROOTFS"/etc/sysconfig/grub2
 	chroot "$ROOTFS" grub-mkconfig -o /boot/grub/grub.cfg
+	mkdir -p "$ROOTFS"/boot/efi/EFI/BOOT
 	case "$ARCH" in
 		x86_64)
 			chroot "$ROOTFS" grub-install --target=i386-efi --recheck \
 			  --removable --uefi-secure-boot
 			chroot "$ROOTFS" grub-install --target=x86_64-efi --recheck \
 			  --removable --uefi-secure-boot
-			sed -i 's/initrd16/initrdefi/g' "$ROOTFS/boot/grub/grub.cfg"
-			sed -i 's/linux16/linuxefi/g' "$ROOTFS/boot/grub/grub.cfg"
+			sed -i 's/initrd16/initrd/g' "$ROOTFS/boot/grub/grub.cfg"
+			sed -i 's/linux16/linux/g' "$ROOTFS/boot/grub/grub.cfg"
+			[ -n "$BIOSPART" ] &&
+				chroot "$ROOTFS" grub-install --target=i386-pc "$LOOPDEV"
 		;;
 		aarch64)
-			chroot "$ROOTFS" grub-install --target=arm64-efi --recheck \
-			  --removable --uefi-secure-boot
+			cp "$ROOTFS"/usr/lib64/efi/grubaa64.efi \
+			   "$ROOTFS"/boot/efi/EFI/BOOT/bootaa64.efi
 		;;
 		riscv64)
-			chroot "$ROOTFS" grub-install --target=riscv64-efi --recheck \
-			  --removable --uefi-secure-boot
+			cp "$ROOTFS"/usr/lib64/efi/grubriscv64.efi \
+			   "$ROOTFS"/boot/efi/EFI/BOOT/bootriscv64.efi
+		;;
+		loongarch64)
+			cp "$ROOTFS"/usr/lib64/efi/grubloongarch64.efi \
+			   "$ROOTFS"/boot/efi/EFI/BOOT/bootloongarch64.efi
+		;;
 	esac
 	sed -i '/GRUB_DISABLE_OS_PROBER=true/d' "$ROOTFS/etc/sysconfig/grub2"
+	[ -s "$ROOTFS"/boot/efi/EFI/BOOT/grub.cfg ] ||
+		create_inner_grub_cfg "$ROOTFS"/boot/efi/EFI/BOOT/grub.cfg
 	;;
 grub)
 	echo 'GRUB_DISABLE_OS_PROBER=true' >> "$ROOTFS"/etc/sysconfig/grub2
@@ -438,8 +434,8 @@ grub)
 	case "$ARCH" in
 		*86*)
 			chroot "$ROOTFS" grub-install --target=i386-pc "$LOOPDEV"
-			sed -i 's/initrdefi/initrd16/g' "$ROOTFS/boot/grub/grub.cfg"
-			sed -i 's/linuxefi/linux16/g' "$ROOTFS/boot/grub/grub.cfg"
+			sed -i 's/initrdefi/initrd/g' "$ROOTFS/boot/grub/grub.cfg"
+			sed -i 's/linuxefi/linux/g' "$ROOTFS/boot/grub/grub.cfg"
 		;;
 		ppc*)
 			[ -z "$LOOPBOOTLOADER" ] ||

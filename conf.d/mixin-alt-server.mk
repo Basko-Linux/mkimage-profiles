@@ -13,6 +13,7 @@ mixin/alt-server: server_main_kmodules = bcmwl ch34x dm-secdel drbd9 drm-ancient
 	virtualbox-addition-video virtualbox xtables-addons
 
 mixin/alt-server: +installer +systemd \
+	use/ntp/chrony \
 	use/branding/notes \
 	use/control use/services \
 	use/install2/stage3 \
@@ -20,12 +21,14 @@ mixin/alt-server: +installer +systemd \
 	use/volumes/alt-server \
 	use/apt-conf/branch \
 	use/fonts/install2 \
-	use/install2/stage3 \
+	use/l10n/default/ru_RU use/install2/stage3 \
 	use/firmware/full \
 	use/net/etcnet \
 	use/tty
 	@$(call set,INSTALLER,centaurus)
 	@$(call set,BRANDING,alt-server)
+	@$(call set,THE_APT_CONF,branch-gostcrypto)
+	@$(call set,DISABLE_LANG_MENU,in_grub)
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTLOADER,grubpcboot)
 endif
@@ -74,7 +77,7 @@ endif
 	@$(call add,COMMON_PACKAGES,vim-console)
 	@$(call add,DEFAULT_SERVICES_ENABLE,rpcbind sshd bind)
 	@$(call add,DEFAULT_SYSTEMD_SERVICES_ENABLE,systemd-networkd.service)
-	@$(call set,META_VOL_ID,ALT Server 10.1 $(ARCH))
+	@$(call set,META_VOL_ID,ALT Server 10.2 $(ARCH))
 	@$(call set,META_PUBLISHER,BaseALT Ltd)
 	@$(call set,META_VOL_SET,ALT)
-	@$(call set,META_APP_ID,ALT Server 10.1 $(ARCH) $(shell date +%F))
+	@$(call set,META_APP_ID,ALT Server 10.2 $(ARCH) $(shell date +%F))
