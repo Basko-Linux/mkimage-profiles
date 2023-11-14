@@ -118,7 +118,7 @@ use/slinux/base: use/isohybrid use/luks \
 	use/stage2/rtc use/stage2/sbc use/stage2/scsi use/stage2/usb \
 	use/install2/fonts \
 	use/install2/fat \
-	use/efi/memtest86 use/efi/shell \
+	use/efi/shell \
 	use/bootloader/grub \
 	use/branding/complete \
 	mixin/desktop-installer \
