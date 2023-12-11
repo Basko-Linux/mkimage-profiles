@@ -24,8 +24,7 @@ powertop@X86
 pciutils
 usbutils
 acpi
-dmidecode@X86
-dmidecode@aarch64
+dmidecode@X86,aarch64,loongarch64
 
 apt-repo
 apt-rsync
