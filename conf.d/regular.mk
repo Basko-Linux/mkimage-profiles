@@ -1,12 +1,17 @@
 # regular build/usage images
 ifeq (distro,$(IMAGE_CLASS))
 
+distro/.regular-initrd:: use/stage2/ata use/stage2/fs use/stage2/hid \
+	use/stage2/mmc use/stage2/scsi use/stage2/usb; @:
+
+ifneq (,$(filter-out i586,$(ARCH)))
+distro/.regular-initrd:: use/stage2/net use/stage2/net-nfs use/stage2/cifs \
+	use/stage2/rtc use/stage2/drm use/stage2/sbc ; @:
+endif
+
 # common ground (really lowlevel)
 distro/.regular-bare: distro/.base use/kernel/net use/docs/license \
-	use/stage2/ata use/stage2/fs use/stage2/hid use/stage2/md \
-	use/stage2/mmc use/stage2/net use/stage2/net-nfs use/stage2/cifs \
-	use/stage2/rtc use/stage2/sbc use/stage2/scsi use/stage2/usb \
-	use/stage2/drm use/tty
+	distro/.regular-initrd use/tty
 	@$(call try,SAVE_PROFILE,yes)
 	@$(call add,STAGE1_PACKAGES,firmware-linux)
 	@$(call add,STAGE1_KMODULES,drm)
@@ -35,12 +40,14 @@ distro/.regular-x11: distro/.regular-base mixin/regular-x11 \
 	@$(call add,DEFAULT_SERVICES_DISABLE,gpm powertop)
 
 # Network install
+ifeq (,$(filter-out i586 x86_64 aarch64 ppc64le riscv64 loongarch64,$(ARCH)))
 distro/regular-net-install: distro/grub-net-install; @:
 ifeq (sisyphus,$(BRANCH))
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call set,BOOTCHAIN_OEM_URL_NETINST,/sisyphus/snapshots/$(DATE)/regular-NAME-$(DATE)-$(ARCH).iso)
 else
 	@$(call set,BOOTCHAIN_OEM_URL_NETINST,/sisyphus-$(ARCH)/snapshots/$(DATE)/regular-NAME-$(DATE)-$(ARCH).iso)
+endif
 endif
 endif
 
@@ -50,6 +57,9 @@ distro/.regular-wm: distro/.regular-x11 \
 	use/live/rw +live-installer
 	@$(call set,GRUB_DEFAULT,live)
 	@$(call set,SYSLINUX_DEFAULT,live)
+ifeq (,$(filter-out i586 x86_64,$(ARCH)))
+	@$(call add,THE_PACKAGES,xorg-drv-vmware) # for virtualbox with VMSVGA
+endif
 
 # DE base target
 # TODO: use/plymouth/live when luks+plymouth is done, see also #28255
@@ -108,7 +118,12 @@ else
 	@$(call add,CLEANUP_PACKAGES,bridge-utils)
 endif
 	@$(call add,DEFAULT_SERVICES_DISABLE,fbsetfont)
-	@$(call add,INSTALL2_PACKAGES,xorg-dri-vmwgfx xorg-dri-virtio)
+ifeq (,$(filter-out i586 x86_64,$(ARCH)))
+	@$(call add,INSTALL2_PACKAGES,xorg-dri-vmwgfx)
+endif
+ifneq (,$(filter-out e2k%,$(ARCH)))
+	@$(call add,INSTALL2_PACKAGES,xorg-dri-virtio)
+endif
 
 # NB:
 # - stock cleanup is not enough (or installer-common-stage3 deps soaring)
@@ -165,7 +180,8 @@ distro/regular-xfce-install: distro/.regular-install-x11-systemd \
 distro/regular-gnome-install: distro/.regular-install-x11-systemd mixin/regular-gnome \
 	use/kernel/latest +plymouth; @:
 
-distro/regular-lxde: distro/.regular-gtk mixin/regular-lxde; @:
+distro/regular-lxde: distro/.regular-desktop use/x11/lightdm/gtk \
+	mixin/regular-lxde; @:
 
 distro/regular-mate: distro/.regular-gtk mixin/regular-mate; @:
 
