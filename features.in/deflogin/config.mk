@@ -17,7 +17,7 @@ use/deflogin:
 # basic livecd: root with no password, live user is created at startup
 use/deflogin/live: use/deflogin
 	@$(call set,ROOTPW_EMPTY,1)
-	@$(call try,LIVE_USER,altlinux)
+	@$(call try,LIVE_USER,basko)
 	@$(call add,LIVE_PACKAGES,livecd-user)
 	@$(call add,DEFAULT_SERVICES_ENABLE,livecd-user)
 
@@ -27,14 +27,14 @@ use/deflogin/desktop: use/deflogin/live \
 
 # could also be passed on the commandline
 use/deflogin/root: use/deflogin
-	@$(call try,ROOTPW,altlinux)
+	@$(call try,ROOTPW,basko)
 
 # appliances: "root:altlinux"; "altlinux:root" in "xgrp" group
 use/deflogin/altlinuxroot: use/deflogin/root use/deflogin/xgrp
-	@$(call add,USERS,altlinux:root:1:1)
+	@$(call add,USERS,basko:root:1:1)
 
 use/deflogin/altroot: use/deflogin/root use/deflogin/xgrp
-	@$(call add,USERS,alt:root:1:1)
+	@$(call add,USERS,basko:root:1:1)
 
 # peripherals
 use/deflogin/hardware: use/deflogin
