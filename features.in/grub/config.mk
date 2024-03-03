@@ -8,7 +8,7 @@ use/grub: sub/stage1 $(ISOHYBRID:%=use/isohybrid)
 ifeq (,$(filter-out i586 x86_64,$(ARCH)))
 	@$(call try,BOOTVGA,normal)
 endif
-	@$(call set,RELNAME,ALT ($(IMAGE_NAME)))
+	@$(call set,RELNAME,$(IMAGE_NAME))
 	@$(call xport,GRUB_DEFAULT)
 
 # UI is overwritten
