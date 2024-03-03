@@ -78,7 +78,6 @@ mixin/alt-workstation-install: +installer \
 	@$(call add,INSTALL2_PACKAGES,alterator-notes)
 	@$(call add,INSTALL2_PACKAGES,fdisk)
 	@$(call add,INSTALL2_PACKAGES,btrfs-progs)
-	@$(call add,INSTALL2_PACKAGES,open-iscsi)
 	@$(call add,INSTALL2_PACKAGES,xorg-conf-libinput-touchpad)
 	@$(call add,THE_PACKAGES,installer-feature-repo-add)
 ifneq (,$(filter-out e2k%,$(ARCH)))

@@ -32,7 +32,7 @@ distro/.regular-x11: distro/.regular-base mixin/regular-x11 \
 	use/x11/wacom use/x11/amdgpu +wireless \
 	use/live/x11 use/live/repo \
 	use/live/suspend use/browser/firefox \
-	use/syslinux/ui/gfxboot use/grub/ui/gfxboot
+	use/syslinux/ui/menu use/grub/ui/gfxboot
 	@$(call add,THE_BRANDING,bootloader)
 	@$(call add,THE_LISTS,$(call tags,(base || desktop) && regular))
 	@$(call add,LIVE_LISTS,$(call tags,base rescue))
@@ -73,7 +73,7 @@ distro/.regular-gtk: distro/.regular-desktop use/x11/lightdm/gtk +plymouth; @:
 distro/.regular-desktop-sysv: distro/.regular-wm use/init/sysv/polkit +power; @:
 
 distro/.regular-gtk-sysv: distro/.regular-desktop-sysv \
-	use/syslinux/ui/gfxboot use/x11/gdm2.20; @:
+	use/syslinux/ui/menu use/x11/gdm2.20; @:
 
 distro/.regular-install: distro/.regular-base +installer \
 	use/branding use/bootloader/grub use/luks use/stage2/kms \
@@ -176,6 +176,12 @@ endif
 
 distro/regular-xfce-install: distro/.regular-install-x11-systemd \
 	mixin/regular-xfce; @:
+
+distro/basko: distro/.regular-gtk-sysv mixin/basko
+	@$(call set,KFLAVOURS,std-def)
+ifeq (,$(filter-out i586 x86_64,$(ARCH)))
+	@$(call set,BOOTLOADER,isolinux)
+endif
 
 distro/regular-gnome-install: distro/.regular-install-x11-systemd mixin/regular-gnome \
 	use/kernel/latest +plymouth; @:

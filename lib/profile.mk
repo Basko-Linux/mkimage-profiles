@@ -107,13 +107,13 @@ else
 endif
 	@$(call set,GLOBAL_HSH_PROC,1)
 	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-alterator:Essential)
-	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-bootsplash:Essential)
-	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-bootloader:Essential)
+#	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-bootsplash:Essential)
+#	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-bootloader:Essential)
 	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-graphics:Essential)
 	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-indexhtml:Essential)
 	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-notes:Essential)
 	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-release:Essential)
-	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-slideshow:Essential)
+#	@$(call add,PINNED_PACKAGES,branding-$$(BRANDING)-slideshow:Essential)
 	@$(call set,PACKAGES_REQUIRED_INITROOT,basesystem branding-$$(BRANDING)-release)
 	@$(call xport,ARCH)
 	@mp-commit "$(BUILDDIR)" "image configuration defaults set"
